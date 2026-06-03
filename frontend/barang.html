@@ -743,11 +743,11 @@
           const h = { Authorization: `Bearer ${token}` };
           const [resBarang, resKat, resStok, resSup, resGud] =
             await Promise.all([
-              fetch("http://localhost:5000/barang", { headers: h }),
-              fetch("http://localhost:5000/kategori", { headers: h }),
-              fetch("http://localhost:5000/stok-gudang", { headers: h }),
-              fetch("http://localhost:5000/supplier", { headers: h }),
-              fetch("http://localhost:5000/gudang", { headers: h }),
+              fetch("/barang", { headers: h }),
+              fetch("/kategori", { headers: h }),
+              fetch("/stok-gudang", { headers: h }),
+              fetch("/supplier", { headers: h }),
+              fetch("/gudang", { headers: h }),
             ]);
 
           const dataBarang = await resBarang.json();
@@ -1008,7 +1008,7 @@
               .getElementById("fKategoriBaru")
               .value.trim();
             if (namaKat) {
-              const resKat = await fetch("http://localhost:5000/kategori", {
+              const resKat = await fetch("/kategori", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -1020,7 +1020,7 @@
               if (resKat.ok) {
                 kategoriId = jsonKat?.id || jsonKat?.data?.id || null;
                 const resRefresh = await fetch(
-                  "http://localhost:5000/kategori",
+                  "/kategori",
                   { headers: { Authorization: `Bearer ${token}` } },
                 );
                 const dataRefresh = await resRefresh.json().catch(() => []);
@@ -1043,8 +1043,8 @@
           };
 
           const url = isEdit
-            ? `http://localhost:5000/barang/${editId}`
-            : "http://localhost:5000/barang";
+            ? `/barang/${editId}`
+            : "/barang";
           const method = isEdit ? "PUT" : "POST";
 
           const res = await fetch(url, {
@@ -1074,7 +1074,7 @@
             const barangId = json?.id || json?.data?.id || null;
 
             if (gudangId && barangId) {
-              await fetch("http://localhost:5000/stok-gudang", {
+              await fetch("/stok-gudang", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -1115,7 +1115,7 @@
         btn.disabled = true;
         btn.innerHTML = `<span class="material-symbols-outlined text-[18px]" style="animation:spin 0.7s linear infinite">progress_activity</span> Menghapus...`;
         try {
-          const res = await fetch(`http://localhost:5000/barang/${hapusId}`, {
+          const res = await fetch(`/barang/${hapusId}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` },
           });

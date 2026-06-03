@@ -444,16 +444,16 @@
       async function loadData() {
         try {
           const [barang, masuk, keluar, mutasi] = await Promise.all([
-            fetch("http://localhost:5000/barang", { headers }).then((r) =>
+            fetch("/barang", { headers }).then((r) =>
               r.json(),
             ),
-            fetch("http://localhost:5000/barang-masuk", { headers }).then((r) =>
+            fetch("/barang-masuk", { headers }).then((r) =>
               r.json(),
             ),
-            fetch("http://localhost:5000/barang-keluar", { headers }).then(
+            fetch("/barang-keluar", { headers }).then(
               (r) => r.json(),
             ),
-            fetch("http://localhost:5000/mutasi-gudang", { headers }).then(
+            fetch("/mutasi-gudang", { headers }).then(
               (r) => r.json(),
             ),
           ]);
