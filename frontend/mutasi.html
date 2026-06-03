@@ -1,0 +1,1430 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mutasi Gudang - LogistikSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: #f1f5f9;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+      .sidebar-text {
+        font-size: 14px;
+      }
+
+      .modal-wrap {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-wrap.open {
+        display: flex;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+      }
+      .form-group input {
+        width: 100%;
+        height: 44px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0 14px;
+        font-size: 14px;
+        color: #1e293b;
+        outline: none;
+        background: #f8fafc;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .form-group input:focus {
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+      }
+
+      .combo-wrap {
+        position: relative;
+      }
+      .combo-wrap input {
+        padding-right: 40px;
+      }
+      .combo-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+        display: none;
+        font-size: 18px;
+        line-height: 1;
+        padding: 0;
+      }
+      .combo-clear.show {
+        display: block;
+      }
+      .combo-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        max-height: 220px;
+        overflow-y: auto;
+        display: none;
+      }
+      .combo-dropdown.open {
+        display: block;
+      }
+      .combo-item {
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #1e293b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.1s;
+      }
+      .combo-item:hover {
+        background: #f1f5f9;
+      }
+      .combo-item-sub {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-left: auto;
+      }
+      .combo-empty {
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #94a3b8;
+      }
+
+      /* Tombol "Buat Gudang Baru" di dropdown */
+      .combo-add-new {
+        padding: 10px 14px;
+        font-size: 13px;
+        color: #3b82f6;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        border-top: 1px solid #e2e8f0;
+        font-weight: 600;
+        transition: background 0.1s;
+        gap: 8px;
+      }
+      .combo-add-new:hover {
+        background: #eff6ff;
+      }
+
+      /* Mini modal tambah gudang */
+      #miniGudangModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 19999;
+        align-items: center;
+        justify-content: center;
+      }
+      #miniGudangModal.open {
+        display: flex;
+      }
+
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 99999;
+        transform: translateY(120px);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      #toast.show {
+        transform: translateY(0);
+      }
+      tbody tr {
+        transition: background 0.15s;
+      }
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #f1f5f9 25%,
+          #e2e8f0 50%,
+          #f1f5f9 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 8px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGOUT MODAL -->
+    <div id="logoutModal" class="modal-wrap">
+      <div class="bg-white rounded-3xl p-8 w-[340px] shadow-2xl text-center">
+        <div
+          class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="material-symbols-outlined text-red-500 text-[28px]"
+            >logout</span
+          >
+        </div>
+        <h2 class="font-bold text-slate-800 text-lg mb-1">Yakin logout?</h2>
+        <p class="text-slate-500 text-sm mb-6">Kamu akan keluar dari sistem</p>
+        <div class="flex gap-3">
+          <button
+            onclick="closeLogout()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmLogout()"
+            class="flex-1 h-11 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MINI MODAL: BUAT GUDANG BARU -->
+    <div id="miniGudangModal">
+      <div class="bg-white rounded-3xl shadow-2xl w-[400px] p-7">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <h3 class="font-bold text-slate-800 text-base">Buat Gudang Baru</h3>
+            <p class="text-slate-500 text-xs mt-0.5">
+              Gudang akan langsung bisa dipilih sebagai tujuan
+            </p>
+          </div>
+          <button
+            onclick="closeMiniGudang()"
+            class="w-8 h-8 flex items-center justify-center rounded-xl hover:bg-slate-100 transition"
+          >
+            <span class="material-symbols-outlined text-slate-400 text-[18px]"
+              >close</span
+            >
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div class="form-group">
+            <label>Nama Gudang</label>
+            <input
+              type="text"
+              id="mg_nama"
+              placeholder="Contoh: Gudang Bandung"
+            />
+          </div>
+          <div class="form-group">
+            <label>Lokasi / Alamat</label>
+            <input
+              type="text"
+              id="mg_lokasi"
+              placeholder="Contoh: Jl. Merdeka No. 10"
+            />
+          </div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button
+            onclick="closeMiniGudang()"
+            class="flex-1 h-10 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition"
+          >
+            Batal
+          </button>
+          <button
+            id="btnSimpanGudang"
+            onclick="simpanGudangBaru()"
+            class="btn-submit flex-1 h-10 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold transition flex items-center justify-center gap-2"
+          >
+            <span class="material-symbols-outlined text-[16px]"
+              >add_circle</span
+            >
+            Simpan Gudang
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM MODAL -->
+    <div id="formModal" class="modal-wrap">
+      <div
+        class="bg-white rounded-3xl shadow-2xl w-[520px] max-h-[90vh] overflow-y-auto"
+      >
+        <!-- Header -->
+        <div
+          class="px-7 py-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-3xl z-10"
+        >
+          <div>
+            <h2 class="font-bold text-slate-800 text-lg">
+              Tambah Mutasi Gudang
+            </h2>
+            <p class="text-slate-500 text-sm">Pindahkan stok antar gudang</p>
+          </div>
+          <button
+            onclick="closeForm()"
+            class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition"
+          >
+            <span class="material-symbols-outlined text-slate-500 text-[20px]"
+              >close</span
+            >
+          </button>
+        </div>
+        <!-- Body -->
+        <div class="px-7 py-6 space-y-5">
+          <!-- BARANG -->
+          <div class="form-group">
+            <label>Barang</label>
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="fm_barang_input"
+                autocomplete="off"
+                placeholder="Cari nama barang…"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="fm_barang_clear"
+                onclick="clearFmBarang()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="fm_barang_dropdown"></div>
+            </div>
+            <input type="hidden" id="fm_barang_id" />
+            <p class="text-xs text-slate-400 mt-1.5" id="fm_barang_hint">
+              Pilih barang dari daftar
+            </p>
+          </div>
+
+          <!-- GUDANG ASAL -->
+          <div class="form-group">
+            <label>Gudang Asal</label>
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="fm_asal_input"
+                autocomplete="off"
+                placeholder="Pilih barang dulu…"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="fm_asal_clear"
+                onclick="clearFmAsal()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="fm_asal_dropdown"></div>
+            </div>
+            <input type="hidden" id="fm_asal_id" />
+            <p class="text-xs text-slate-400 mt-1.5" id="fm_asal_hint">
+              Gudang asal otomatis terisi setelah pilih barang
+            </p>
+          </div>
+
+          <!-- GUDANG TUJUAN -->
+          <div class="form-group">
+            <label>Gudang Tujuan</label>
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="fm_tujuan_input"
+                autocomplete="off"
+                placeholder="Cari gudang tujuan…"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="fm_tujuan_clear"
+                onclick="clearFmTujuan()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="fm_tujuan_dropdown"></div>
+            </div>
+            <input type="hidden" id="fm_tujuan_id" />
+            <p class="text-xs text-slate-400 mt-1.5" id="fm_tujuan_hint">
+              Pilih gudang tujuan (selain gudang asal)
+            </p>
+          </div>
+
+          <!-- QTY -->
+          <div class="form-group">
+            <label>Qty</label>
+            <input type="number" id="fm_qty" placeholder="0" min="1" />
+          </div>
+
+          <!-- PREVIEW -->
+          <div
+            id="previewBox"
+            class="hidden bg-blue-50 border border-blue-100 rounded-2xl p-4"
+          >
+            <p class="text-xs font-semibold text-blue-600 uppercase mb-3">
+              Preview Mutasi Stok
+            </p>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+              <div class="bg-white rounded-xl p-3 border border-blue-100">
+                <p class="text-xs text-slate-500 mb-1">Stok Gudang Asal</p>
+                <p class="font-bold text-slate-700" id="previewAsalLama">0</p>
+                <div class="flex items-center gap-1 mt-1">
+                  <span
+                    class="material-symbols-outlined text-red-400 text-[14px]"
+                    >arrow_downward</span
+                  >
+                  <p
+                    class="font-bold text-red-500 text-sm"
+                    id="previewAsalBaru"
+                  >
+                    0
+                  </p>
+                </div>
+              </div>
+              <div class="bg-white rounded-xl p-3 border border-blue-100">
+                <p class="text-xs text-slate-500 mb-1">Stok Gudang Tujuan</p>
+                <p class="font-bold text-slate-700" id="previewTujuanLama">0</p>
+                <div class="flex items-center gap-1 mt-1">
+                  <span
+                    class="material-symbols-outlined text-emerald-400 text-[14px]"
+                    >arrow_upward</span
+                  >
+                  <p
+                    class="font-bold text-emerald-600 text-sm"
+                    id="previewTujuanBaru"
+                  >
+                    0
+                  </p>
+                </div>
+              </div>
+            </div>
+            <p
+              id="previewWarning"
+              class="hidden text-xs text-red-500 mt-2 font-semibold"
+            >
+              ⚠ Stok gudang asal tidak mencukupi!
+            </p>
+            <p
+              id="previewSameWarning"
+              class="hidden text-xs text-red-500 mt-2 font-semibold"
+            >
+              ⚠ Gudang asal dan tujuan tidak boleh sama!
+            </p>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div
+          class="px-7 py-5 border-t border-slate-100 flex gap-3 bg-slate-50 rounded-b-3xl"
+        >
+          <button
+            onclick="closeForm()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-white transition"
+          >
+            Batal
+          </button>
+          <button
+            id="btnSubmit"
+            onclick="submitMutasi()"
+            class="btn-submit flex-1 h-11 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
+          >
+            <span class="material-symbols-outlined text-[18px]">sync_alt</span>
+            Simpan Mutasi
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST -->
+    <div
+      id="toast"
+      class="flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-semibold bg-white border border-slate-200"
+    >
+      <span id="toastIcon" class="material-symbols-outlined text-[20px]"
+        >check_circle</span
+      >
+      <span id="toastMsg">Berhasil!</span>
+    </div>
+
+    <div class="flex min-h-screen">
+      <!-- SIDEBAR -->
+      <aside
+        class="w-[260px] bg-slate-950 text-white fixed h-screen flex flex-col justify-between"
+      >
+        <div class="overflow-y-auto flex-1">
+          <div class="px-6 py-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-11 h-11 bg-blue-500 rounded-2xl flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined">warehouse</span>
+              </div>
+              <div>
+                <h1 class="font-bold text-lg">LogistikSmart</h1>
+                <p class="text-slate-400 text-xs">Management System</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 px-3 tracking-wider"
+            >
+              Menu Utama
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >dashboard</span
+                >Dashboard</a
+              >
+              <a
+                href="barang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >inventory_2</span
+                >Barang</a
+              >
+              <a
+                href="supplier.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >local_shipping</span
+                >Supplier</a
+              >
+              <a
+                href="gudang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >warehouse</span
+                >Gudang</a
+              >
+              <a
+                href="stok.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >stacks</span
+                >Stok Gudang</a
+              >
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Transaksi
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="barang-masuk.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >move_to_inbox</span
+                >Barang Masuk</a
+              >
+              <a
+                href="barang-keluar.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >outbox</span
+                >Barang Keluar</a
+              >
+              <a
+                href="mutasi.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500 sidebar-text font-semibold"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >sync_alt</span
+                >Mutasi Gudang</a
+              >
+              <a
+                href="po.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >shopping_cart</span
+                >Purchase Order</a
+              >
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Analitik
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="riwayat.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >history</span
+                >Riwayat</a
+              >
+              <a
+                href="laporan.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >assessment</span
+                >Laporan</a
+              >
+            </nav>
+          </div>
+        </div>
+        <div class="p-4 border-t border-slate-800">
+          <div class="bg-slate-900 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-11 h-11 rounded-full"
+              />
+              <div>
+                <h3 id="username" class="font-semibold text-sm">User</h3>
+                <p id="userrole" class="text-slate-400 text-xs uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="openLogout()"
+              class="w-full mt-4 bg-red-500 hover:bg-red-600 transition h-10 rounded-xl text-sm font-semibold"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="flex-1 ml-[260px]">
+        <!-- TOPBAR -->
+        <div
+          class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30"
+        >
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">Mutasi Gudang</h1>
+            <p class="text-slate-500 text-sm">
+              Kelola perpindahan stok antar gudang
+            </p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="h-8 w-[1px] bg-slate-200"></div>
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-10 h-10 rounded-full"
+              />
+              <div>
+                <h3 id="usernameTop" class="font-semibold text-sm">User</h3>
+                <p id="userroleTop" class="text-xs text-slate-500 uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-6">
+          <!-- ACTION BAR -->
+          <div class="flex items-center justify-between gap-4 mb-6">
+            <div class="relative">
+              <span
+                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]"
+                >search</span
+              >
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="Cari barang, gudang…"
+                class="bg-white border border-slate-200 rounded-2xl pl-11 pr-5 py-3 w-[300px] outline-none text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
+              />
+            </div>
+            <div class="flex items-center gap-3">
+              <button
+                onclick="loadData()"
+                class="w-11 h-11 border border-slate-200 rounded-xl hover:bg-slate-100 flex items-center justify-center transition"
+                title="Refresh"
+              >
+                <span
+                  class="material-symbols-outlined text-slate-500 text-[20px]"
+                  >refresh</span
+                >
+              </button>
+              <button
+                id="btnTambah"
+                onclick="openForm()"
+                class="bg-blue-500 hover:bg-blue-600 active:scale-95 text-white px-5 py-3 rounded-2xl font-semibold text-sm flex items-center gap-2 transition"
+              >
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                Tambah Mutasi
+              </button>
+            </div>
+          </div>
+
+          <!-- STAT CARDS -->
+          <div id="statCards" class="grid grid-cols-4 gap-4 mb-6">
+            <div class="skeleton h-24 rounded-2xl"></div>
+            <div class="skeleton h-24 rounded-2xl"></div>
+            <div class="skeleton h-24 rounded-2xl"></div>
+            <div class="skeleton h-24 rounded-2xl"></div>
+          </div>
+
+          <!-- TABLE -->
+          <div
+            class="bg-white rounded-3xl border border-slate-200 overflow-hidden"
+          >
+            <div
+              class="px-6 py-5 border-b border-slate-100 flex items-center justify-between"
+            >
+              <div>
+                <h3 class="font-bold text-lg text-slate-800">
+                  Riwayat Mutasi Gudang
+                </h3>
+                <p class="text-sm text-slate-500">
+                  Seluruh transaksi perpindahan barang
+                </p>
+              </div>
+              <div
+                id="totalBadge"
+                class="px-3 py-1 bg-slate-100 rounded-full text-xs font-semibold text-slate-500"
+              ></div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      No
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Barang
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Gudang Asal
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Gudang Tujuan
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Qty
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Tanggal
+                    </th>
+                    <th
+                      class="px-6 py-4 text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  <tr>
+                    <td
+                      colspan="7"
+                      class="text-center py-16 text-slate-400 text-sm"
+                    >
+                      <span
+                        class="material-symbols-outlined text-[40px] block mb-3 text-slate-300"
+                        >sync_alt</span
+                      >
+                      Memuat data…
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const BASE_URL = "http://localhost:5000";
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const name = localStorage.getItem("name");
+
+      if (!token) {
+        alert("Silakan login!");
+        window.location.href = "login.html";
+      }
+      const allowedRoles = ["admin", "manager", "gudang", "user", "purchasing"];
+      if (!allowedRoles.includes(role)) {
+        alert("Tidak punya akses!");
+        window.location.href = "dashboard.html";
+      }
+
+      ["username", "usernameTop"].forEach(
+        (id) => (document.getElementById(id).innerText = name || "User"),
+      );
+      ["userrole", "userroleTop"].forEach(
+        (id) =>
+          (document.getElementById(id).innerText = (role || "").toUpperCase()),
+      );
+      if (role !== "admin" && role !== "gudang")
+        document.getElementById("btnTambah").style.display = "none";
+
+      const hdr = { Authorization: `Bearer ${token}` };
+      const hdrJson = { ...hdr, "Content-Type": "application/json" };
+
+      let allData = [];
+      let listBarang = [];
+      let listGudang = [];
+      let stokMap = {};
+
+      let selBarangId = null;
+      let selAsalId = null,
+        selAsalNama = null;
+      let selTujuanId = null,
+        selTujuanNama = null;
+
+      // ── TOAST ──────────────────────────────────────────────────
+      function showToast(msg, type = "success") {
+        const t = document.getElementById("toast");
+        const icon = document.getElementById("toastIcon");
+        const txt = document.getElementById("toastMsg");
+        txt.textContent = msg;
+        t.className =
+          "flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-semibold bg-white border " +
+          (type === "success" ? "border-emerald-200" : "border-red-200");
+        icon.textContent = type === "success" ? "check_circle" : "error";
+        icon.className =
+          "material-symbols-outlined text-[20px] " +
+          (type === "success" ? "text-emerald-500" : "text-red-500");
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3500);
+      }
+
+      // ── LOGOUT ──────────────────────────────────────────────────
+      function openLogout() {
+        document.getElementById("logoutModal").classList.add("open");
+      }
+      function closeLogout() {
+        document.getElementById("logoutModal").classList.remove("open");
+      }
+      function confirmLogout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      // ── LOAD MASTER DATA ────────────────────────────────────────
+      // FIX: Selalu rebuild stokMap dari response terbaru
+      async function loadMasterData() {
+        try {
+          const [rBarang, rGudang, rStok] = await Promise.all([
+            fetch(`${BASE_URL}/barang`, { headers: hdr }),
+            fetch(`${BASE_URL}/gudang`, { headers: hdr }),
+            fetch(`${BASE_URL}/stok-gudang`, { headers: hdr }),
+          ]);
+          listBarang = await rBarang.json().catch(() => []);
+          listGudang = await rGudang.json().catch(() => []);
+          const stokRaw = await rStok.json().catch(() => []);
+          if (!Array.isArray(listBarang)) listBarang = [];
+          if (!Array.isArray(listGudang)) listGudang = [];
+
+          // FIX: Reset stokMap dulu sebelum rebuild, jangan pernah accumulate dari stokMap lama
+          stokMap = {};
+          if (Array.isArray(stokRaw)) {
+            stokRaw.forEach((s) => {
+              const key = `${s.barang_id}_${s.gudang_id}`;
+              // FIX: Gunakan assignment, bukan +=, karena backend sudah aggregate per barang+gudang
+              // Kalau backend return multiple row per barang+gudang, pakai += tapi pastikan stokMap di-reset dulu
+              stokMap[key] = (stokMap[key] || 0) + Number(s.stok ?? s.qty ?? 0);
+            });
+          }
+        } catch (e) {
+          console.error("Master data error", e);
+        }
+      }
+
+      // ── LOAD TABLE ──────────────────────────────────────────────
+      async function loadData() {
+        try {
+          const res = await fetch(`${BASE_URL}/mutasi-gudang`, {
+            headers: hdr,
+          });
+          allData = await res.json().catch(() => []);
+          if (!Array.isArray(allData)) allData = [];
+          renderTable(allData);
+          renderStats(allData);
+        } catch (e) {
+          console.error(e);
+          renderTable([]);
+        }
+      }
+
+      // ── RENDER STATS ────────────────────────────────────────────
+      function renderStats(data) {
+        const total = data.length;
+        const totalQty = data.reduce((s, d) => s + (Number(d.qty) || 0), 0);
+        const today = data.filter(
+          (d) =>
+            new Date(d.tanggal).toDateString() === new Date().toDateString(),
+        ).length;
+        const gudangSet = new Set(
+          data.map((d) => d.nama_gudang_asal).filter(Boolean),
+        );
+        document.getElementById("statCards").innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-blue-500 text-[22px]">sync_alt</span>
+            </div>
+            <div><p class="text-xs text-slate-500 font-medium">Total Mutasi</p><p class="text-2xl font-bold text-slate-800">${total}</p></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-orange-500 text-[22px]">inventory_2</span>
+            </div>
+            <div><p class="text-xs text-slate-500 font-medium">Total Qty Mutasi</p><p class="text-2xl font-bold text-slate-800">${totalQty.toLocaleString("id-ID")}</p></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-emerald-500 text-[22px]">today</span>
+            </div>
+            <div><p class="text-xs text-slate-500 font-medium">Hari Ini</p><p class="text-2xl font-bold text-slate-800">${today}</p></div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-violet-500 text-[22px]">warehouse</span>
+            </div>
+            <div><p class="text-xs text-slate-500 font-medium">Gudang Terlibat</p><p class="text-2xl font-bold text-slate-800">${gudangSet.size}</p></div>
+          </div>`;
+      }
+
+      // ── RENDER TABLE ────────────────────────────────────────────
+      function renderTable(data) {
+        const tbody = document.getElementById("tableBody");
+        document.getElementById("totalBadge").textContent =
+          `${data.length} transaksi`;
+        if (!data.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-16 text-slate-400 text-sm">
+            <span class="material-symbols-outlined text-[40px] block mb-3 text-slate-300">sync_alt</span>
+            Belum ada data mutasi gudang</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data
+          .map(
+            (row, i) => `
+          <tr class="border-t border-slate-100 hover:bg-slate-50">
+            <td class="px-6 py-4 text-sm text-slate-500">${i + 1}</td>
+            <td class="px-6 py-4 text-sm font-medium text-slate-800">${row.nama_barang || "-"}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">
+              <span class="inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-slate-400">warehouse</span>
+                ${row.nama_gudang_asal || "-"}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm text-slate-600">
+              <span class="inline-flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px] text-blue-400">warehouse</span>
+                ${row.nama_gudang_tujuan || "-"}
+              </span>
+            </td>
+            <td class="px-6 py-4 text-sm font-semibold text-slate-800">${row.qty || 0}</td>
+            <td class="px-6 py-4 text-sm text-slate-500">${row.tanggal ? new Date(row.tanggal).toLocaleDateString("id-ID") : "-"}</td>
+            <td class="px-6 py-4 text-center">
+              <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1 rounded-full text-xs font-semibold">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block"></span> Mutasi
+              </span>
+            </td>
+          </tr>`,
+          )
+          .join("");
+      }
+
+      // ── SEARCH ──────────────────────────────────────────────────
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function () {
+          const q = this.value.toLowerCase();
+          const filtered = allData.filter(
+            (d) =>
+              (d.nama_barang || "").toLowerCase().includes(q) ||
+              (d.nama_gudang_asal || "").toLowerCase().includes(q) ||
+              (d.nama_gudang_tujuan || "").toLowerCase().includes(q),
+          );
+          renderTable(filtered);
+        });
+
+      // ── PREVIEW ──────────────────────────────────────────────────
+      function updatePreview() {
+        const box = document.getElementById("previewBox");
+        if (!selBarangId || !selAsalId || !selTujuanId) {
+          box.classList.add("hidden");
+          return;
+        }
+        const qty = Number(document.getElementById("fm_qty").value) || 0;
+        const keyAsal = `${selBarangId}_${selAsalId}`;
+        const keyTujuan = `${selBarangId}_${selTujuanId}`;
+        const stokAsal = stokMap[keyAsal] || 0;
+        const stokTujuan = stokMap[keyTujuan] || 0;
+        document.getElementById("previewAsalLama").textContent = stokAsal;
+        document.getElementById("previewAsalBaru").textContent = stokAsal - qty;
+        document.getElementById("previewTujuanLama").textContent = stokTujuan;
+        document.getElementById("previewTujuanBaru").textContent =
+          stokTujuan + qty;
+        const warn = document.getElementById("previewWarning");
+        const sameWarn = document.getElementById("previewSameWarning");
+        warn.classList.toggle("hidden", stokAsal >= qty);
+        sameWarn.classList.toggle("hidden", selAsalId !== selTujuanId);
+        box.classList.remove("hidden");
+      }
+      document
+        .getElementById("fm_qty")
+        .addEventListener("input", updatePreview);
+
+      // ── COMBOBOX HELPER ──────────────────────────────────────────
+      function makeCombobox({
+        inputId,
+        dropdownId,
+        clearId,
+        getList,
+        labelKey,
+        iconName,
+        onSelect,
+        allowAddNew,
+      }) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        const clearBtn = document.getElementById(clearId);
+
+        function render(q) {
+          const list = getList();
+          const ql = q.toLowerCase();
+          const filtered = q
+            ? list.filter((i) => (i[labelKey] || "").toLowerCase().includes(ql))
+            : list;
+          let html = filtered
+            .map(
+              (i) =>
+                `<div class="combo-item" onclick="${onSelect}(${i.id},'${(i[labelKey] || "").replace(/'/g, "\\'")}')">
+              <span class="material-symbols-outlined text-[16px] text-slate-400">${iconName}</span>
+              <span>${i[labelKey]}</span>
+              ${i._sub ? `<span class="combo-item-sub">${i._sub}</span>` : ""}
+            </div>`,
+            )
+            .join("");
+          if (!filtered.length)
+            html = `<div class="combo-empty">Tidak ditemukan</div>`;
+          // FIX: Tambahkan opsi "Buat Gudang Baru" hanya di dropdown gudang tujuan
+          if (allowAddNew) {
+            html += `<div class="combo-add-new" onclick="openMiniGudang('${inputId}')">
+              <span class="material-symbols-outlined text-[16px]">add_circle</span>
+              <span>+ Buat Gudang Baru</span>
+            </div>`;
+          }
+          dropdown.innerHTML = html;
+        }
+
+        input.addEventListener("input", () => {
+          clearBtn.classList.toggle("show", input.value.length > 0);
+          render(input.value.trim());
+          dropdown.classList.add("open");
+        });
+        input.addEventListener("focus", () => {
+          render(input.value.trim());
+          dropdown.classList.add("open");
+        });
+        document.addEventListener("click", (e) => {
+          if (
+            !e.target.closest(`#${inputId}`) &&
+            !e.target.closest(`#${dropdownId}`) &&
+            !e.target.closest("#miniGudangModal")
+          )
+            dropdown.classList.remove("open");
+        });
+      }
+
+      // ── MINI MODAL: BUAT GUDANG BARU ─────────────────────────────
+      let _miniGudangTargetInput = null;
+
+      function openMiniGudang(targetInputId) {
+        _miniGudangTargetInput = targetInputId;
+        document.getElementById("mg_nama").value = "";
+        document.getElementById("mg_lokasi").value = "";
+        // Tutup dropdown tujuan dulu
+        document.getElementById("fm_tujuan_dropdown").classList.remove("open");
+        document.getElementById("miniGudangModal").classList.add("open");
+        setTimeout(() => document.getElementById("mg_nama").focus(), 100);
+      }
+
+      function closeMiniGudang() {
+        document.getElementById("miniGudangModal").classList.remove("open");
+      }
+
+      async function simpanGudangBaru() {
+        const nama = document.getElementById("mg_nama").value.trim();
+        const lokasi = document.getElementById("mg_lokasi").value.trim();
+        if (!nama) return showToast("Nama gudang wajib diisi!", "error");
+
+        const btn = document.getElementById("btnSimpanGudang");
+        btn.disabled = true;
+        btn.innerHTML = "Menyimpan...";
+
+        try {
+          const res = await fetch(`${BASE_URL}/gudang`, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({ nama_gudang: nama, lokasi }),
+          });
+          const result = await res.json();
+          if (res.ok) {
+            // Reload list gudang agar gudang baru muncul
+            const rGudang = await fetch(`${BASE_URL}/gudang`, { headers: hdr });
+            listGudang = await rGudang.json().catch(() => listGudang);
+            if (!Array.isArray(listGudang)) listGudang = [];
+
+            // Auto-pilih gudang baru sebagai tujuan
+            const newId = result.id || result.data?.id;
+            if (newId) {
+              pilihTujuan(newId, nama);
+            }
+            closeMiniGudang();
+            showToast(`Gudang "${nama}" berhasil dibuat & dipilih!`);
+          } else {
+            showToast(result.message || "Gagal buat gudang!", "error");
+          }
+        } catch (err) {
+          console.error(err);
+          showToast("Server error!", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">add_circle</span> Simpan Gudang`;
+        }
+      }
+
+      // ── BARANG COMBOBOX ──────────────────────────────────────────
+      function initBarangCombobox() {
+        makeCombobox({
+          inputId: "fm_barang_input",
+          dropdownId: "fm_barang_dropdown",
+          clearId: "fm_barang_clear",
+          getList: () => listBarang,
+          labelKey: "nama_barang",
+          iconName: "inventory_2",
+          onSelect: "pilihBarang",
+        });
+      }
+
+      function pilihBarang(id, nama) {
+        selBarangId = id;
+        document.getElementById("fm_barang_input").value = nama;
+        document.getElementById("fm_barang_id").value = id;
+        document.getElementById("fm_barang_clear").classList.add("show");
+        document.getElementById("fm_barang_dropdown").classList.remove("open");
+        document.getElementById("fm_barang_hint").textContent =
+          "Barang dipilih ✓";
+        clearFmAsal();
+        clearFmTujuan();
+
+        const gudangDenganStok = listGudang
+          .map((g) => ({ ...g, stok: stokMap[`${id}_${g.id}`] || 0 }))
+          .filter((g) => g.stok > 0)
+          .sort((a, b) => b.stok - a.stok);
+
+        if (gudangDenganStok.length === 1) {
+          pilihAsal(gudangDenganStok[0].id, gudangDenganStok[0].nama_gudang);
+          document.getElementById("fm_asal_hint").textContent =
+            "Gudang asal dipilih otomatis ✓";
+        } else if (gudangDenganStok.length > 1) {
+          document.getElementById("fm_asal_input").placeholder =
+            `${gudangDenganStok.length} gudang tersedia — pilih salah satu…`;
+          document.getElementById("fm_asal_hint").textContent =
+            `Ada ${gudangDenganStok.length} gudang dengan stok, pilih gudang asal`;
+        } else {
+          document.getElementById("fm_asal_input").placeholder =
+            "⚠ Stok 0 di semua gudang";
+          document.getElementById("fm_asal_hint").textContent =
+            "Barang ini tidak punya stok di gudang manapun";
+        }
+        updatePreview();
+      }
+
+      function clearFmBarang() {
+        selBarangId = null;
+        document.getElementById("fm_barang_input").value = "";
+        document.getElementById("fm_barang_id").value = "";
+        document.getElementById("fm_barang_clear").classList.remove("show");
+        document.getElementById("fm_barang_hint").textContent =
+          "Pilih barang dari daftar";
+        document.getElementById("fm_asal_input").placeholder =
+          "Pilih barang dulu…";
+        document.getElementById("fm_asal_hint").textContent =
+          "Gudang asal otomatis terisi setelah pilih barang";
+        clearFmAsal();
+        clearFmTujuan();
+        document.getElementById("previewBox").classList.add("hidden");
+      }
+
+      // ── GUDANG ASAL COMBOBOX ──────────────────────────────────────
+      function initAsalCombobox() {
+        makeCombobox({
+          inputId: "fm_asal_input",
+          dropdownId: "fm_asal_dropdown",
+          clearId: "fm_asal_clear",
+          getList: () => {
+            if (!selBarangId) return listGudang;
+            return listGudang
+              .map((g) => ({
+                ...g,
+                _sub: `stok: ${stokMap[`${selBarangId}_${g.id}`] || 0}`,
+              }))
+              .sort((a, b) => {
+                const sa = stokMap[`${selBarangId}_${a.id}`] || 0;
+                const sb = stokMap[`${selBarangId}_${b.id}`] || 0;
+                return sb - sa;
+              });
+          },
+          labelKey: "nama_gudang",
+          iconName: "warehouse",
+          onSelect: "pilihAsal",
+        });
+      }
+
+      function pilihAsal(id, nama) {
+        selAsalId = Number(id);
+        selAsalNama = nama;
+        document.getElementById("fm_asal_input").value = nama;
+        document.getElementById("fm_asal_id").value = id;
+        document.getElementById("fm_asal_clear").classList.add("show");
+        document.getElementById("fm_asal_dropdown").classList.remove("open");
+        document.getElementById("fm_asal_hint").textContent =
+          "Gudang asal dipilih ✓";
+        updatePreview();
+      }
+
+      function clearFmAsal() {
+        selAsalId = null;
+        selAsalNama = null;
+        document.getElementById("fm_asal_input").value = "";
+        document.getElementById("fm_asal_id").value = "";
+        document.getElementById("fm_asal_clear").classList.remove("show");
+        document.getElementById("fm_asal_hint").textContent =
+          "Gudang asal otomatis terisi setelah pilih barang";
+        updatePreview();
+      }
+
+      // ── GUDANG TUJUAN COMBOBOX ────────────────────────────────────
+      function initTujuanCombobox() {
+        makeCombobox({
+          inputId: "fm_tujuan_input",
+          dropdownId: "fm_tujuan_dropdown",
+          clearId: "fm_tujuan_clear",
+          getList: () =>
+            listGudang
+              .filter((g) => !selAsalId || Number(g.id) !== Number(selAsalId))
+              .map((g) => ({
+                ...g,
+                _sub: selBarangId
+                  ? `stok: ${stokMap[`${selBarangId}_${g.id}`] || 0}`
+                  : "",
+              })),
+          labelKey: "nama_gudang",
+          iconName: "warehouse",
+          onSelect: "pilihTujuan",
+          allowAddNew: true, // FIX: Aktifkan tombol "Buat Gudang Baru" di dropdown ini
+        });
+      }
+
+      function pilihTujuan(id, nama) {
+        selTujuanId = Number(id);
+        selTujuanNama = nama;
+        document.getElementById("fm_tujuan_input").value = nama;
+        document.getElementById("fm_tujuan_id").value = id;
+        document.getElementById("fm_tujuan_clear").classList.add("show");
+        document.getElementById("fm_tujuan_dropdown").classList.remove("open");
+        document.getElementById("fm_tujuan_hint").textContent =
+          "Gudang tujuan dipilih ✓";
+        updatePreview();
+      }
+
+      function clearFmTujuan() {
+        selTujuanId = null;
+        selTujuanNama = null;
+        document.getElementById("fm_tujuan_input").value = "";
+        document.getElementById("fm_tujuan_id").value = "";
+        document.getElementById("fm_tujuan_clear").classList.remove("show");
+        document.getElementById("fm_tujuan_hint").textContent =
+          "Pilih gudang tujuan (selain gudang asal)";
+        updatePreview();
+      }
+
+      // ── FORM OPEN / CLOSE ────────────────────────────────────────
+      function openForm() {
+        selBarangId = null;
+        selAsalId = null;
+        selAsalNama = null;
+        selTujuanId = null;
+        selTujuanNama = null;
+        [
+          "fm_barang_input",
+          "fm_asal_input",
+          "fm_tujuan_input",
+          "fm_qty",
+        ].forEach((id) => (document.getElementById(id).value = ""));
+        ["fm_barang_id", "fm_asal_id", "fm_tujuan_id"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+        ["fm_barang_clear", "fm_asal_clear", "fm_tujuan_clear"].forEach((id) =>
+          document.getElementById(id).classList.remove("show"),
+        );
+        document.getElementById("fm_barang_input").placeholder =
+          "Cari nama barang…";
+        document.getElementById("fm_asal_input").placeholder =
+          "Pilih barang dulu…";
+        document.getElementById("fm_tujuan_input").placeholder =
+          "Cari gudang tujuan…";
+        document.getElementById("fm_barang_hint").textContent =
+          "Pilih barang dari daftar";
+        document.getElementById("fm_asal_hint").textContent =
+          "Gudang asal otomatis terisi setelah pilih barang";
+        document.getElementById("fm_tujuan_hint").textContent =
+          "Pilih gudang tujuan (selain gudang asal)";
+        document.getElementById("previewBox").classList.add("hidden");
+        document.getElementById("previewWarning").classList.add("hidden");
+        document.getElementById("previewSameWarning").classList.add("hidden");
+        document.getElementById("formModal").classList.add("open");
+      }
+
+      function closeForm() {
+        document.getElementById("formModal").classList.remove("open");
+      }
+
+      // ── SUBMIT ───────────────────────────────────────────────────
+      async function submitMutasi() {
+        const barang_id =
+          selBarangId || document.getElementById("fm_barang_id").value || null;
+        const gudang_asal_id =
+          selAsalId || document.getElementById("fm_asal_id").value || null;
+        const gudang_tujuan_id =
+          selTujuanId || document.getElementById("fm_tujuan_id").value || null;
+        const qty = document.getElementById("fm_qty").value;
+
+        if (!barang_id)
+          return showToast("Pilih barang terlebih dahulu!", "error");
+        if (!gudang_asal_id) return showToast("Pilih gudang asal!", "error");
+        if (!gudang_tujuan_id)
+          return showToast("Pilih gudang tujuan!", "error");
+        if (Number(gudang_asal_id) === Number(gudang_tujuan_id))
+          return showToast("Gudang asal dan tujuan tidak boleh sama!", "error");
+        if (!qty || Number(qty) <= 0)
+          return showToast("Qty harus lebih dari 0!", "error");
+
+        const stokAda = stokMap[`${barang_id}_${gudang_asal_id}`] || 0;
+        if (Number(qty) > stokAda)
+          return showToast(
+            `Stok gudang asal tidak cukup! Tersedia: ${stokAda}`,
+            "error",
+          );
+
+        const btn = document.getElementById("btnSubmit");
+        btn.disabled = true;
+        btn.innerHTML = "Menyimpan...";
+
+        try {
+          const res = await fetch(`${BASE_URL}/mutasi-gudang`, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({
+              barang_id: Number(barang_id),
+              gudang_asal_id: Number(gudang_asal_id),
+              gudang_tujuan_id: Number(gudang_tujuan_id),
+              qty: Number(qty),
+            }),
+          });
+          const result = await res.json();
+          if (res.ok) {
+            showToast(result.message || "Mutasi berhasil!");
+            closeForm();
+            // FIX: await keduanya secara sequential agar stokMap benar-benar fresh setelah mutasi
+            await loadMasterData();
+            await loadData();
+          } else {
+            showToast(result.message || "Gagal simpan!", "error");
+          }
+        } catch (err) {
+          console.error(err);
+          showToast("Server error!", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">sync_alt</span> Simpan Mutasi`;
+        }
+      }
+
+      // ── INIT ─────────────────────────────────────────────────────
+      window.onload = async () => {
+        await loadMasterData();
+        initBarangCombobox();
+        initAsalCombobox();
+        initTujuanCombobox();
+        await loadData();
+      };
+    </script>
+  </body>
+</html>

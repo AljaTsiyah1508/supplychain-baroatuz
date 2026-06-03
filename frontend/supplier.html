@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Supplier - LogistikSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: #f1f5f9;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      ::-webkit-scrollbar {
+        width: 7px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+      .sidebar-text {
+        font-size: 14px;
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal-box {
+        background: white;
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        animation: popIn 0.2s ease;
+      }
+      @keyframes popIn {
+        from {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGOUT MODAL -->
+    <div id="logoutModal" class="modal-overlay">
+      <div class="modal-box text-center" style="width: 340px">
+        <div
+          class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="material-symbols-outlined text-red-500 text-[28px]"
+            >logout</span
+          >
+        </div>
+        <h2 class="font-bold text-slate-800 text-lg mb-1">Yakin logout?</h2>
+        <p class="text-slate-500 text-sm mb-6">Kamu akan keluar dari sistem</p>
+        <div class="flex gap-3">
+          <button
+            onclick="closeModal('logoutModal')"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm hover:bg-slate-50 transition"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmLogout()"
+            class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HAPUS MODAL -->
+    <div id="hapusModal" class="modal-overlay">
+      <div class="modal-box text-center" style="width: 360px">
+        <div
+          class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="material-symbols-outlined text-red-500 text-[28px]"
+            >delete</span
+          >
+        </div>
+        <h2 class="font-bold text-slate-800 text-lg mb-1">Hapus Supplier?</h2>
+        <p id="hapusDesc" class="text-slate-500 text-sm mb-1">
+          Kamu akan menghapus supplier ini.
+        </p>
+        <p class="text-slate-400 text-xs mb-6">
+          Tindakan ini tidak bisa dibatalkan.
+        </p>
+        <div class="flex gap-3">
+          <button
+            onclick="closeModal('hapusModal')"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmHapus()"
+            class="flex-1 h-11 rounded-xl bg-red-500 hover:bg-red-600 text-white font-semibold text-sm transition flex items-center justify-center gap-2"
+          >
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+            Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORM MODAL (Tambah / Edit) -->
+    <div id="formModal" class="modal-overlay">
+      <div class="modal-box" style="width: 440px">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h2 id="formTitle" class="font-bold text-slate-800 text-lg">
+              Tambah Supplier
+            </h2>
+            <p class="text-slate-400 text-xs mt-0.5">
+              Isi data supplier di bawah ini
+            </p>
+          </div>
+          <button
+            onclick="closeModal('formModal')"
+            class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-400"
+          >
+            <span class="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label
+              class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block"
+              >Nama Supplier <span class="text-red-400">*</span></label
+            >
+            <input
+              id="fNama"
+              type="text"
+              placeholder="Nama supplier"
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition"
+            />
+          </div>
+          <div>
+            <label
+              class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block"
+              >Alamat</label
+            >
+            <textarea
+              id="fAlamat"
+              rows="3"
+              placeholder="Alamat lengkap supplier"
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition resize-none"
+            ></textarea>
+          </div>
+          <div>
+            <label
+              class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 block"
+              >Telepon</label
+            >
+            <input
+              id="fTelepon"
+              type="tel"
+              placeholder="Nomor telepon"
+              class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 transition"
+            />
+          </div>
+        </div>
+
+        <div
+          id="formError"
+          class="hidden mt-3 text-xs text-red-500 bg-red-50 border border-red-100 rounded-xl px-4 py-3"
+        ></div>
+
+        <div class="flex gap-3 mt-6">
+          <button
+            onclick="closeModal('formModal')"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition"
+          >
+            Batal
+          </button>
+          <button
+            onclick="submitForm()"
+            id="formSaveBtn"
+            class="flex-1 h-11 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm transition flex items-center justify-center gap-2"
+          >
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex min-h-screen">
+      <!-- SIDEBAR -->
+      <aside
+        class="w-[260px] bg-slate-950 text-white fixed h-screen flex flex-col justify-between"
+      >
+        <div class="overflow-y-auto flex-1">
+          <div class="px-6 py-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-11 h-11 bg-blue-500 rounded-2xl flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined">warehouse</span>
+              </div>
+              <div>
+                <h1 class="font-bold text-lg">LogistikSmart</h1>
+                <p class="text-slate-400 text-xs">Management System</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 px-3 tracking-wider"
+            >
+              Menu Utama
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >dashboard</span
+                >Dashboard
+              </a>
+              <a
+                href="barang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >inventory_2</span
+                >Barang
+              </a>
+              <a
+                href="supplier.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >local_shipping</span
+                >Supplier
+              </a>
+              <a
+                href="gudang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >warehouse</span
+                >Gudang
+              </a>
+              <a
+                href="stok.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]">stacks</span
+                >Stok Gudang
+              </a>
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Transaksi
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="barang-masuk.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >move_to_inbox</span
+                >Barang Masuk
+              </a>
+              <a
+                href="barang-keluar.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]">outbox</span
+                >Barang Keluar
+              </a>
+              <a
+                href="mutasi.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >sync_alt</span
+                >Mutasi Gudang
+              </a>
+              <a
+                href="po.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >shopping_cart</span
+                >Purchase Order
+              </a>
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Analitik
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="riwayat.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >history</span
+                >Riwayat
+              </a>
+              <a
+                href="laporan.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >assessment</span
+                >Laporan
+              </a>
+            </nav>
+          </div>
+        </div>
+
+        <!-- USER FOOTER -->
+        <div class="p-4 border-t border-slate-800">
+          <div class="bg-slate-900 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-11 h-11 rounded-full"
+              />
+              <div>
+                <h3 id="username" class="font-semibold text-sm">User</h3>
+                <p id="userrole" class="text-slate-400 text-xs uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="openModal('logoutModal')"
+              class="w-full mt-4 bg-red-500 hover:bg-red-600 transition h-10 rounded-xl text-sm font-semibold"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="flex-1 ml-[260px]">
+        <!-- TOPBAR -->
+        <div
+          class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30"
+        >
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">Supplier</h1>
+            <p class="text-slate-500 text-sm">Kelola supplier perusahaan</p>
+          </div>
+          <div class="flex items-center gap-5">
+            <button
+              class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-slate-600"
+                >manage_accounts</span
+              >
+            </button>
+            <div class="h-8 w-[1px] bg-slate-300"></div>
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-10 h-10 rounded-full"
+              />
+              <div>
+                <h3 id="usernameTop" class="font-semibold text-sm">User</h3>
+                <p id="userroleTop" class="text-xs text-slate-500 uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-6">
+          <!-- SEARCH + TAMBAH -->
+          <div class="flex justify-between gap-4 mb-6">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Cari supplier..."
+              class="bg-white border border-slate-200 rounded-2xl px-5 py-3 w-[280px] outline-none"
+            />
+            <button
+              id="btnTambah"
+              onclick="openTambah()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2"
+            >
+              <span class="material-symbols-outlined">add</span> Tambah Supplier
+            </button>
+          </div>
+
+          <!-- STATS -->
+          <div class="grid grid-cols-2 gap-4 mb-6" id="statCards"></div>
+
+          <!-- TABLE -->
+          <div
+            class="bg-white rounded-3xl border border-slate-200 overflow-hidden"
+          >
+            <div class="px-6 py-5 border-b border-slate-200">
+              <h3 class="font-bold text-lg">Data Supplier</h3>
+              <p class="text-sm text-slate-500">
+                Seluruh data supplier perusahaan
+              </p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      KODE
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      NAMA SUPPLIER
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      ALAMAT
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      TELEPON
+                    </th>
+                    <th class="px-6 py-4 text-center text-xs text-slate-500">
+                      AKSI
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:5000/supplier";
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const name = localStorage.getItem("name");
+
+      if (!token) {
+        alert("Silakan login!");
+        window.location.href = "login.html";
+      }
+
+      // ── FIX 1: Ganti "user" → "gudang" ───────────────────────
+      const allowedRoles = ["admin", "manager", "gudang", "purchasing"];
+      if (!allowedRoles.includes(role)) {
+        alert("Kamu tidak punya akses!");
+        window.location.href = "dashboard.html";
+      }
+
+      document.getElementById("username").innerText = name || "User";
+      document.getElementById("userrole").innerText = role.toUpperCase();
+      document.getElementById("usernameTop").innerText = name || "User";
+      document.getElementById("userroleTop").innerText = role.toUpperCase();
+
+      // ── FIX 2: Tambah gudang ke canCreate ────────────────────
+      if (role !== "admin" && role !== "purchasing" && role !== "gudang") {
+        document.getElementById("btnTambah").style.display = "none";
+      }
+
+      // ── STATE ─────────────────────────────────────────────────
+      let allData = [];
+      let hapusId = null;
+      let editId = null;
+
+      // ── MODAL HELPERS ─────────────────────────────────────────
+      function openModal(id) {
+        document.getElementById(id).classList.add("open");
+      }
+      function closeModal(id) {
+        document.getElementById(id).classList.remove("open");
+      }
+
+      document.querySelectorAll(".modal-overlay").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          if (e.target === el) el.classList.remove("open");
+        });
+      });
+
+      // ── LOAD DATA ─────────────────────────────────────────────
+      async function loadData() {
+        try {
+          const res = await fetch(API_URL, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error();
+          const result = await res.json();
+          allData = Array.isArray(result) ? result : [];
+          renderStats();
+          renderTable();
+        } catch {
+          alert("Gagal memuat data supplier");
+        }
+      }
+
+      // ── STATS ─────────────────────────────────────────────────
+      function renderStats() {
+        const total = allData.length;
+        document.getElementById("statCards").innerHTML = `
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-xs text-slate-500 mb-1">TOTAL SUPPLIER</p>
+            <h2 class="text-3xl font-bold">${total}</h2>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-xs text-slate-500 mb-1">SUPPLIER AKTIF</p>
+            <h2 class="text-3xl font-bold text-emerald-600">${total}</h2>
+          </div>`;
+      }
+
+      // ── RENDER TABLE ──────────────────────────────────────────
+      function renderTable() {
+        const search = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const filtered = allData.filter(
+          (item) =>
+            (item.nama_supplier || "").toLowerCase().includes(search) ||
+            (item.alamat || "").toLowerCase().includes(search) ||
+            (item.telepon || "").toLowerCase().includes(search),
+        );
+
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+
+        if (!filtered.length) {
+          tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">Tidak ada data supplier</td></tr>`;
+          return;
+        }
+
+        filtered.forEach((item, idx) => {
+          const canEdit = role === "admin" || role === "purchasing";
+          const canDelete = role === "admin";
+
+          const aksi = canEdit
+            ? `<div class="flex items-center justify-center gap-2">
+                <button data-edit="${item.id}"
+                  class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-semibold transition border border-blue-100">
+                  <span class="material-symbols-outlined text-[14px]">edit</span> Edit
+                </button>
+                ${
+                  canDelete
+                    ? `<button data-hapus="${item.id}" data-name="${(item.nama_supplier || "").replace(/"/g, "&quot;")}"
+                      class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 text-xs font-semibold transition border border-red-100">
+                      <span class="material-symbols-outlined text-[14px]">delete</span> Hapus
+                    </button>`
+                    : ""
+                }
+              </div>`
+            : `<span class="text-slate-400 text-xs font-medium">Read Only</span>`;
+
+          tbody.innerHTML += `
+            <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+              <td class="px-6 py-4 font-semibold text-blue-600">SUP-${String(idx + 1).padStart(3, "0")}</td>
+              <td class="px-6 py-4 font-semibold">${item.nama_supplier || "-"}</td>
+              <td class="px-6 py-4 text-slate-500 max-w-[200px] truncate">${item.alamat || "-"}</td>
+              <td class="px-6 py-4">${item.telepon || "-"}</td>
+              <td class="px-6 py-4 text-center">${aksi}</td>
+            </tr>`;
+        });
+      }
+
+      // Event delegation
+      document.getElementById("tableBody").addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        if (btn.dataset.edit) openEdit(Number(btn.dataset.edit));
+        if (btn.dataset.hapus)
+          openHapus(Number(btn.dataset.hapus), btn.dataset.name);
+      });
+
+      // ── SEARCH ────────────────────────────────────────────────
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", renderTable);
+
+      // ── TAMBAH ────────────────────────────────────────────────
+      function openTambah() {
+        editId = null;
+        document.getElementById("formTitle").innerText = "Tambah Supplier";
+        document.getElementById("fNama").value = "";
+        document.getElementById("fAlamat").value = "";
+        document.getElementById("fTelepon").value = "";
+        document.getElementById("formError").classList.add("hidden");
+        openModal("formModal");
+        setTimeout(() => document.getElementById("fNama").focus(), 100);
+      }
+
+      // ── EDIT ──────────────────────────────────────────────────
+      function openEdit(id) {
+        const item = allData.find((i) => i.id === id);
+        if (!item) return;
+        editId = id;
+        document.getElementById("formTitle").innerText = "Edit Supplier";
+        document.getElementById("fNama").value = item.nama_supplier || "";
+        document.getElementById("fAlamat").value = item.alamat || "";
+        document.getElementById("fTelepon").value = item.telepon || "";
+        document.getElementById("formError").classList.add("hidden");
+        openModal("formModal");
+        setTimeout(() => document.getElementById("fNama").focus(), 100);
+      }
+
+      // ── SUBMIT FORM ───────────────────────────────────────────
+      async function submitForm() {
+        const nama = document.getElementById("fNama").value.trim();
+        const alamat = document.getElementById("fAlamat").value.trim();
+        const telepon = document.getElementById("fTelepon").value.trim();
+        const errEl = document.getElementById("formError");
+        const saveBtn = document.getElementById("formSaveBtn");
+
+        if (!nama) {
+          errEl.innerText = "Nama supplier tidak boleh kosong.";
+          errEl.classList.remove("hidden");
+          return;
+        }
+
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]" style="animation:spin 0.6s linear infinite">progress_activity</span> Menyimpan...`;
+
+        const isEdit = editId !== null;
+        const url = isEdit ? `${API_URL}/${editId}` : API_URL;
+        const method = isEdit ? "PUT" : "POST";
+
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ nama_supplier: nama, alamat, telepon }),
+          });
+          const json = await res.json().catch(() => null);
+          if (!res.ok) {
+            errEl.innerText =
+              "Gagal: " +
+              (json?.message || json?.error || `Error ${res.status}`);
+            errEl.classList.remove("hidden");
+            return;
+          }
+          closeModal("formModal");
+          await loadData();
+        } catch {
+          errEl.innerText = "Gagal terhubung ke server.";
+          errEl.classList.remove("hidden");
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = `<span class="material-symbols-outlined text-[18px]">save</span> Simpan`;
+        }
+      }
+
+      // ── HAPUS ─────────────────────────────────────────────────
+      function openHapus(id, nama) {
+        hapusId = id;
+        document.getElementById("hapusDesc").innerText =
+          `Kamu akan menghapus "${nama}". Tindakan ini tidak bisa dibatalkan.`;
+        openModal("hapusModal");
+      }
+
+      async function confirmHapus() {
+        if (!hapusId) return;
+        try {
+          const res = await fetch(`${API_URL}/${hapusId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) throw new Error();
+          closeModal("hapusModal");
+          hapusId = null;
+          await loadData();
+        } catch {
+          closeModal("hapusModal");
+          alert("Gagal menghapus supplier.");
+        }
+      }
+
+      // ── LOGOUT ────────────────────────────────────────────────
+      function confirmLogout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      window.onload = loadData;
+    </script>
+  </body>
+</html>

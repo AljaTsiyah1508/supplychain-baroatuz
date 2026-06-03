@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Login - LogistikSmart</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background: #f1f5f9;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen py-8 px-6">
+    <!-- TOAST -->
+    <div
+      id="toast"
+      class="fixed top-6 right-6 bg-white border border-slate-200 shadow-2xl rounded-2xl p-4 flex items-center gap-4 min-w-[320px] translate-x-[120%] transition-all duration-500 z-50"
+    >
+      <div
+        id="toastIcon"
+        class="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center"
+      >
+        <span class="material-symbols-outlined text-green-600"> check </span>
+      </div>
+
+      <div>
+        <h3 id="toastTitle" class="font-semibold text-slate-800">Berhasil</h3>
+
+        <p id="toastMessage" class="text-sm text-slate-500 mt-1">
+          Login berhasil
+        </p>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <main
+      class="max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden grid lg:grid-cols-2"
+    >
+      <!-- LEFT -->
+      <section
+        class="bg-slate-900 text-white p-10 lg:p-14 flex flex-col justify-between"
+      >
+        <div>
+          <!-- LOGO -->
+          <div class="flex items-center gap-4 mb-10">
+            <div
+              class="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-3xl">
+                inventory_2
+              </span>
+            </div>
+
+            <h1 class="text-3xl font-bold">LogistikSmart</h1>
+          </div>
+
+          <!-- TEXT -->
+          <div>
+            <h2 class="text-4xl lg:text-5xl font-bold leading-tight mb-6">
+              Sistem Supply Chain Multi Gudang
+            </h2>
+
+            <p class="text-slate-300 text-lg leading-relaxed">
+              Kelola stok, supplier, gudang, barang masuk, barang keluar, mutasi
+              gudang, dan purchase order secara real-time dalam satu dashboard
+              modern.
+            </p>
+          </div>
+        </div>
+
+        <!-- IMAGE -->
+        <img
+          src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop"
+          class="w-full h-[220px] object-cover rounded-3xl mt-10"
+        />
+      </section>
+
+      <!-- RIGHT -->
+      <section class="bg-slate-50 p-10 lg:p-16 flex items-center">
+        <div class="w-full">
+          <div class="mb-10">
+            <h2 class="text-4xl font-bold text-slate-800 mb-3">
+              Selamat Datang
+            </h2>
+
+            <p class="text-slate-500 text-lg">
+              Silakan login untuk masuk ke dashboard.
+            </p>
+          </div>
+
+          <!-- FORM -->
+          <form id="loginForm" class="space-y-6">
+            <!-- EMAIL -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-slate-700">
+                Email
+              </label>
+
+              <input
+                id="email"
+                type="email"
+                placeholder="Masukkan email"
+                class="w-full h-14 border border-slate-300 rounded-2xl px-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <!-- PASSWORD -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-slate-700">
+                Password
+              </label>
+
+              <div class="relative">
+                <input
+                  id="password"
+                  type="password"
+                  placeholder="Masukkan password"
+                  class="w-full h-14 border border-slate-300 rounded-2xl px-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+
+                <button
+                  type="button"
+                  id="togglePassword"
+                  class="absolute right-5 top-4 text-slate-500"
+                >
+                  <span class="material-symbols-outlined"> visibility </span>
+                </button>
+              </div>
+            </div>
+
+            <!-- BUTTON -->
+            <button
+              type="submit"
+              class="w-full h-14 bg-blue-500 hover:bg-blue-600 transition text-white rounded-2xl font-semibold shadow-lg"
+            >
+              Login
+            </button>
+
+            <!-- REGISTER -->
+            <p class="text-center text-slate-500">
+              Belum punya akun?
+
+              <a
+                href="register.html"
+                class="text-blue-500 font-semibold hover:underline"
+              >
+                Register
+              </a>
+            </p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      // TOGGLE PASSWORD
+      const togglePassword = document.getElementById("togglePassword");
+
+      const passwordInput = document.getElementById("password");
+
+      togglePassword.addEventListener("click", () => {
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+
+        passwordInput.setAttribute("type", type);
+      });
+
+      // TOAST
+      function showToast(title, message, type = "success") {
+        const toast = document.getElementById("toast");
+
+        const toastTitle = document.getElementById("toastTitle");
+
+        const toastMessage = document.getElementById("toastMessage");
+
+        const toastIcon = document.getElementById("toastIcon");
+
+        toastTitle.innerText = title;
+
+        toastMessage.innerText = message;
+
+        // SUCCESS
+        if (type === "success") {
+          toastIcon.className =
+            "w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center";
+
+          toastIcon.innerHTML = `
+          <span class="material-symbols-outlined text-green-600">
+            check
+          </span>
+        `;
+        }
+
+        // ERROR
+        else {
+          toastIcon.className =
+            "w-11 h-11 rounded-xl bg-red-100 flex items-center justify-center";
+
+          toastIcon.innerHTML = `
+          <span class="material-symbols-outlined text-red-600">
+            close
+          </span>
+        `;
+        }
+
+        // SHOW
+        toast.style.transform = "translateX(0)";
+
+        // HIDE
+        setTimeout(() => {
+          toast.style.transform = "translateX(120%)";
+        }, 3000);
+      }
+
+      // LOGIN
+      const form = document.getElementById("loginForm");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch("http://127.0.0.1:5000/auth/login", {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              email,
+              password,
+            }),
+          });
+
+          const data = await response.json();
+
+          // SUCCESS
+          if (response.ok) {
+            // TOKEN
+            localStorage.setItem("token", data.token);
+
+            // ROLE
+            localStorage.setItem("role", data.user.role);
+
+            // NAME
+            localStorage.setItem("name", data.user.name);
+
+            showToast("Login berhasil", `Selamat datang ${data.user.name} 👋`);
+
+            setTimeout(() => {
+              window.location.href = "dashboard.html";
+            }, 1500);
+          }
+
+          // ERROR
+          else {
+            showToast(
+              "Login gagal",
+              data.message || "Email atau password salah",
+              "error",
+            );
+          }
+        } catch (error) {
+          console.log(error);
+
+          showToast("Server error", "Backend tidak terhubung", "error");
+        }
+      });
+    </script>
+  </body>
+</html>

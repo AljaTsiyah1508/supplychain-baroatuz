@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Register - LogistikSmart</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: #f1f5f9;
+      }
+
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-screen py-8 px-6">
+    <main
+      class="max-w-7xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden grid lg:grid-cols-2"
+    >
+      <!-- LEFT -->
+      <section
+        class="bg-slate-900 text-white p-10 lg:p-14 flex flex-col justify-between"
+      >
+        <div>
+          <!-- LOGO -->
+          <div class="flex items-center gap-4 mb-10">
+            <div
+              class="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-3xl">
+                inventory_2
+              </span>
+            </div>
+
+            <h1 class="text-3xl font-bold">LogistikSmart</h1>
+          </div>
+
+          <!-- TEXT -->
+          <div>
+            <h2 class="text-4xl lg:text-5xl font-bold leading-tight mb-6">
+              Register Akun Supply Chain
+            </h2>
+
+            <p class="text-slate-300 text-lg leading-relaxed">
+              Daftarkan akun baru untuk mengakses sistem supply chain multi
+              gudang secara real-time.
+            </p>
+          </div>
+        </div>
+
+        <!-- IMAGE -->
+        <img
+          src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=1200&auto=format&fit=crop"
+          class="w-full h-[240px] lg:h-[260px] object-cover rounded-3xl mt-4"
+        />
+      </section>
+
+      <!-- RIGHT -->
+      <section class="bg-slate-50 p-10 lg:p-16 flex items-center">
+        <div class="w-full">
+          <!-- HEADING -->
+          <div class="mb-10">
+            <h2 class="text-4xl font-bold text-slate-800 mb-3">Buat Akun</h2>
+
+            <p class="text-slate-500 text-lg">
+              Daftarkan akun baru untuk sistem.
+            </p>
+          </div>
+
+          <!-- FORM -->
+          <form id="registerForm" class="space-y-6">
+            <!-- NAMA -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-slate-700">
+                Nama
+              </label>
+
+              <input
+                id="nama"
+                type="text"
+                placeholder="Masukkan nama"
+                class="w-full h-14 border border-slate-300 rounded-2xl px-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <!-- EMAIL -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-slate-700">
+                Email
+              </label>
+
+              <input
+                id="email"
+                type="email"
+                placeholder="Masukkan email"
+                class="w-full h-14 border border-slate-300 rounded-2xl px-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <!-- PASSWORD -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-slate-700">
+                Password
+              </label>
+
+              <input
+                id="password"
+                type="password"
+                placeholder="Masukkan password"
+                class="w-full h-14 border border-slate-300 rounded-2xl px-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <!-- ROLE -->
+            <div>
+              <label class="block mb-2 text-sm font-medium text-slate-700">
+                Role
+              </label>
+
+              <select
+                id="role"
+                class="w-full h-14 border border-slate-300 rounded-2xl px-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="user">User</option>
+
+                <option value="gudang">Gudang</option>
+
+                <option value="purchasing">Purchasing</option>
+
+                <option value="manager">Manager</option>
+              </select>
+            </div>
+
+            <!-- BUTTON -->
+            <button
+              type="submit"
+              class="w-full h-14 bg-blue-500 hover:bg-blue-600 transition text-white rounded-2xl font-semibold shadow-lg"
+            >
+              Register
+            </button>
+
+            <!-- LOGIN -->
+            <p class="text-center text-slate-500">
+              Sudah punya akun?
+
+              <a
+                href="login.html"
+                class="text-blue-500 font-semibold hover:underline"
+              >
+                Login
+              </a>
+            </p>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const form = document.getElementById("registerForm");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("nama").value;
+
+        const email = document.getElementById("email").value;
+
+        const password = document.getElementById("password").value;
+
+        const role = document.getElementById("role").value;
+
+        try {
+          const response = await fetch("http://127.0.0.1:5000/auth/register", {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              name,
+              email,
+              password,
+              role,
+            }),
+          });
+
+          const data = await response.json();
+
+          console.log(data);
+
+          if (response.ok) {
+            alert("Register berhasil!");
+
+            window.location.href = "login.html";
+          } else {
+            alert(JSON.stringify(data));
+          }
+        } catch (error) {
+          console.log(error);
+
+          alert("Server error");
+        }
+      });
+    </script>
+  </body>
+</html>

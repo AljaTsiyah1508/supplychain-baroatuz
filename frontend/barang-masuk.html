@@ -1,0 +1,1382 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barang Masuk - LogistikSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: #f1f5f9;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+      .sidebar-text {
+        font-size: 14px;
+      }
+
+      .modal-wrap {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-wrap.open {
+        display: flex;
+      }
+
+      .form-group label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+      }
+      .form-group select,
+      .form-group input {
+        width: 100%;
+        height: 44px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0 14px;
+        font-size: 14px;
+        color: #1e293b;
+        outline: none;
+        background: #f8fafc;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .form-group select:focus,
+      .form-group input:focus {
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+      }
+      .form-group select {
+        cursor: pointer;
+      }
+
+      .combo-wrap {
+        position: relative;
+      }
+      .combo-wrap input {
+        padding-right: 40px;
+      }
+      .combo-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #94a3b8;
+        display: none;
+        font-size: 18px;
+        line-height: 1;
+        padding: 0;
+      }
+      .combo-clear.show {
+        display: block;
+      }
+      .combo-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+      }
+      .combo-dropdown.open {
+        display: block;
+      }
+      .combo-item {
+        padding: 10px 14px;
+        font-size: 14px;
+        color: #1e293b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background 0.1s;
+      }
+      .combo-item:hover {
+        background: #f1f5f9;
+      }
+      .combo-item.add-new {
+        color: #3b82f6;
+        font-weight: 600;
+        border-top: 1px solid #f1f5f9;
+      }
+      .combo-item.add-new:hover {
+        background: #eff6ff;
+      }
+      .combo-empty {
+        padding: 12px 14px;
+        font-size: 13px;
+        color: #94a3b8;
+      }
+
+      #toast {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 99999;
+        transform: translateY(120px);
+        transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      #toast.show {
+        transform: translateY(0);
+      }
+
+      tbody tr {
+        transition: background 0.15s;
+      }
+
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #f1f5f9 25%,
+          #e2e8f0 50%,
+          #f1f5f9 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 8px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      .badge-received {
+        background: #dcfce7;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+      }
+      .badge-pending {
+        background: #fef9c3;
+        color: #ca8a04;
+        border: 1px solid #fef08a;
+      }
+      .badge-rejected {
+        background: #fee2e2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+      }
+      .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ====== LOGOUT MODAL ====== -->
+    <div id="logoutModal" class="modal-wrap">
+      <div class="bg-white rounded-3xl p-8 w-[340px] shadow-2xl text-center">
+        <div
+          class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="material-symbols-outlined text-red-500 text-[28px]"
+            >logout</span
+          >
+        </div>
+        <h2 class="font-bold text-slate-800 text-lg mb-1">Yakin logout?</h2>
+        <p class="text-slate-500 text-sm mb-6">Kamu akan keluar dari sistem</p>
+        <div class="flex gap-3">
+          <button
+            onclick="closeLogout()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmLogout()"
+            class="flex-1 h-11 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== MODAL TAMBAH BARANG MASUK ====== -->
+    <div id="formModal" class="modal-wrap">
+      <div
+        class="bg-white rounded-3xl shadow-2xl w-[520px] max-h-[90vh] overflow-y-auto"
+      >
+        <div
+          class="px-7 py-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white rounded-t-3xl z-10"
+        >
+          <div>
+            <h2 class="font-bold text-slate-800 text-lg">
+              Tambah Barang Masuk
+            </h2>
+            <p class="text-slate-500 text-sm">Isi detail penerimaan barang</p>
+          </div>
+          <button
+            onclick="closeForm()"
+            class="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-slate-100 transition"
+          >
+            <span class="material-symbols-outlined text-slate-500 text-[20px]"
+              >close</span
+            >
+          </button>
+        </div>
+        <div class="px-7 py-6 space-y-5">
+          <!-- BARANG -->
+          <div class="form-group">
+            <label
+              >Barang
+              <span class="normal-case text-slate-400 font-normal"
+                >(pilih atau ketik nama baru)</span
+              ></label
+            >
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="f_barang_input"
+                autocomplete="off"
+                placeholder="Cari atau ketik nama barang…"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="f_barang_clear"
+                onclick="clearBarang()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="f_barang_dropdown"></div>
+            </div>
+            <input type="hidden" id="f_barang_id" />
+            <p class="text-xs text-slate-400 mt-1.5" id="f_barang_hint">
+              Ketik untuk mencari, atau masukkan nama baru untuk menambah ke
+              database
+            </p>
+          </div>
+          <!-- GUDANG -->
+          <div class="form-group">
+            <label>Gudang</label>
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="f_gudang_input"
+                autocomplete="off"
+                placeholder="Cari atau ketik gudang…"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="f_gudang_clear"
+                onclick="clearGudang()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="f_gudang_dropdown"></div>
+            </div>
+            <input type="hidden" id="f_gudang_id" />
+          </div>
+          <!-- SUPPLIER -->
+          <div class="form-group">
+            <label>Supplier</label>
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="f_supplier_input"
+                autocomplete="off"
+                placeholder="Cari atau ketik supplier…"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="f_supplier_clear"
+                onclick="clearSupplier()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="f_supplier_dropdown"></div>
+            </div>
+            <input type="hidden" id="f_supplier_id" />
+          </div>
+          <!-- KATEGORI -->
+          <div class="form-group">
+            <label
+              >Kategori
+              <span class="normal-case text-slate-400 font-normal"
+                >(pilih atau ketik baru)</span
+              ></label
+            >
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="f_kategori_input"
+                autocomplete="off"
+                placeholder="Cari atau ketik kategori…"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="f_kategori_clear"
+                onclick="clearKategori()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="f_kategori_dropdown"></div>
+            </div>
+            <input type="hidden" id="f_kategori_id" />
+          </div>
+          <!-- QTY & SATUAN -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="form-group">
+              <label>Qty</label>
+              <input type="number" id="f_qty" placeholder="0" min="1" />
+            </div>
+            <div class="form-group">
+              <label>Satuan</label>
+              <input type="text" id="f_satuan" placeholder="pcs, kg, dus…" />
+            </div>
+          </div>
+          <!-- TANGGAL -->
+          <div class="form-group">
+            <label>Tanggal</label>
+            <input type="date" id="f_tanggal" />
+          </div>
+          <!-- CATATAN -->
+          <div class="form-group">
+            <label>Catatan</label>
+            <input type="text" id="f_catatan" placeholder="Opsional…" />
+          </div>
+          <!-- PREVIEW STOK -->
+          <div
+            id="previewBox"
+            class="hidden bg-blue-50 border border-blue-100 rounded-2xl p-4"
+          >
+            <p class="text-xs font-semibold text-blue-600 uppercase mb-2">
+              Preview Perubahan Stok
+            </p>
+            <div class="flex items-center gap-3 text-sm">
+              <span class="text-slate-500">Stok saat ini:</span>
+              <span id="previewStokLama" class="font-bold text-slate-700"
+                >0</span
+              >
+              <span class="material-symbols-outlined text-blue-400 text-[18px]"
+                >arrow_forward</span
+              >
+              <span class="text-slate-500">Setelah masuk:</span>
+              <span id="previewStokBaru" class="font-bold text-emerald-600"
+                >0</span
+              >
+            </div>
+          </div>
+        </div>
+        <div
+          class="px-7 py-5 border-t border-slate-100 flex gap-3 bg-slate-50 rounded-b-3xl"
+        >
+          <button
+            onclick="closeForm()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium hover:bg-white transition"
+          >
+            Batal
+          </button>
+          <button
+            id="btnSubmit"
+            onclick="submitBarangMasuk()"
+            class="btn-submit flex-1 h-11 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold flex items-center justify-center gap-2 transition"
+          >
+            <span class="material-symbols-outlined text-[18px]"
+              >add_circle</span
+            >
+            Simpan Barang Masuk
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== TOAST ====== -->
+    <div
+      id="toast"
+      class="flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-semibold bg-white border border-slate-200"
+    >
+      <span id="toastIcon" class="material-symbols-outlined text-[20px]"
+        >check_circle</span
+      >
+      <span id="toastMsg">Berhasil!</span>
+    </div>
+
+    <div class="flex min-h-screen">
+      <!-- ====== SIDEBAR ====== -->
+      <aside
+        class="w-[260px] bg-slate-950 text-white fixed h-screen flex flex-col justify-between"
+      >
+        <div class="overflow-y-auto flex-1">
+          <div class="px-6 py-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-11 h-11 bg-blue-500 rounded-2xl flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined">warehouse</span>
+              </div>
+              <div>
+                <h1 class="font-bold text-lg">LogistikSmart</h1>
+                <p class="text-slate-400 text-xs">Management System</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 px-3 tracking-wider"
+            >
+              Menu Utama
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >dashboard</span
+                >Dashboard</a
+              >
+              <a
+                href="barang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >inventory_2</span
+                >Barang</a
+              >
+              <a
+                href="supplier.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >local_shipping</span
+                >Supplier</a
+              >
+              <a
+                href="gudang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >warehouse</span
+                >Gudang</a
+              >
+              <a
+                href="stok.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >stacks</span
+                >Stok Gudang</a
+              >
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Transaksi
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="barang-masuk.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500 sidebar-text font-semibold"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >move_to_inbox</span
+                >Barang Masuk</a
+              >
+              <a
+                href="barang-keluar.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >outbox</span
+                >Barang Keluar</a
+              >
+              <a
+                href="mutasi.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >sync_alt</span
+                >Mutasi Gudang</a
+              >
+              <a
+                href="po.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >shopping_cart</span
+                >Purchase Order</a
+              >
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Analitik
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="riwayat.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >history</span
+                >Riwayat</a
+              >
+              <a
+                href="laporan.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+                ><span class="material-symbols-outlined text-[20px]"
+                  >assessment</span
+                >Laporan</a
+              >
+            </nav>
+          </div>
+        </div>
+        <div class="p-4 border-t border-slate-800">
+          <div class="bg-slate-900 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-11 h-11 rounded-full"
+              />
+              <div>
+                <h3 id="username" class="font-semibold text-sm">User</h3>
+                <p id="userrole" class="text-slate-400 text-xs uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="openLogout()"
+              class="w-full mt-4 bg-red-500 hover:bg-red-600 transition h-10 rounded-xl text-sm font-semibold"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ====== MAIN ====== -->
+      <main class="flex-1 ml-[260px]">
+        <!-- TOPBAR -->
+        <div
+          class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30"
+        >
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">Barang Masuk</h1>
+            <p class="text-slate-500 text-sm">
+              Kelola penerimaan barang ke gudang
+            </p>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="h-8 w-[1px] bg-slate-200"></div>
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-10 h-10 rounded-full"
+              />
+              <div>
+                <h3 id="usernameTop" class="font-semibold text-sm">User</h3>
+                <p id="userroleTop" class="text-xs text-slate-500 uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-6">
+          <!-- ACTION BAR -->
+          <div class="flex items-center justify-between gap-4 mb-6">
+            <div class="relative">
+              <span
+                class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]"
+                >search</span
+              >
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="Cari barang, gudang, supplier…"
+                class="bg-white border border-slate-200 rounded-2xl pl-11 pr-5 py-3 w-[300px] outline-none text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
+              />
+            </div>
+            <div class="flex items-center gap-3">
+              <button
+                onclick="loadData()"
+                class="w-11 h-11 border border-slate-200 rounded-xl hover:bg-slate-100 flex items-center justify-center transition"
+                title="Refresh"
+              >
+                <span
+                  class="material-symbols-outlined text-slate-500 text-[20px]"
+                  >refresh</span
+                >
+              </button>
+              <button
+                id="btnTambah"
+                onclick="openForm()"
+                class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-5 py-3 rounded-2xl font-semibold text-sm flex items-center gap-2 transition"
+              >
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                Tambah Barang Masuk
+              </button>
+            </div>
+          </div>
+
+          <!-- STAT CARDS -->
+          <div id="statCards" class="grid grid-cols-4 gap-4 mb-6">
+            <div class="skeleton h-24 rounded-2xl"></div>
+            <div class="skeleton h-24 rounded-2xl"></div>
+            <div class="skeleton h-24 rounded-2xl"></div>
+            <div class="skeleton h-24 rounded-2xl"></div>
+          </div>
+
+          <!-- TABLE CARD -->
+          <div
+            class="bg-white rounded-3xl border border-slate-200 overflow-hidden"
+          >
+            <div
+              class="px-6 py-5 border-b border-slate-100 flex items-center justify-between"
+            >
+              <div>
+                <h3 class="font-bold text-lg text-slate-800">
+                  Riwayat Barang Masuk
+                </h3>
+                <p class="text-sm text-slate-500">
+                  Seluruh transaksi penerimaan barang
+                </p>
+              </div>
+              <div
+                id="totalBadge"
+                class="px-3 py-1 bg-slate-100 rounded-full text-xs font-semibold text-slate-500"
+              ></div>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      No
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Barang
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Gudang
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Supplier
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Qty
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Tanggal
+                    </th>
+                    <th
+                      class="px-6 py-4 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider"
+                    >
+                      Catatan
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody">
+                  <tr>
+                    <td
+                      colspan="7"
+                      class="text-center py-16 text-slate-400 text-sm"
+                    >
+                      <span
+                        class="material-symbols-outlined text-[40px] block mb-3 text-slate-300"
+                        >move_to_inbox</span
+                      >
+                      Memuat data…
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const BASE_URL = "http://localhost:5000";
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const name = localStorage.getItem("name");
+
+      // ── AUTH CHECK ──────────────────────────────────────────────────
+      if (!token) {
+        alert("Silakan login!");
+        window.location.href = "login.html";
+      }
+      const allowedRoles = ["admin", "manager", "gudang", "user", "purchasing"];
+      if (!allowedRoles.includes(role)) {
+        alert("Tidak punya akses!");
+        window.location.href = "dashboard.html";
+      }
+
+      // ── USER INFO ────────────────────────────────────────────────────
+      ["username", "usernameTop"].forEach(
+        (id) => (document.getElementById(id).innerText = name || "User"),
+      );
+      ["userrole", "userroleTop"].forEach(
+        (id) =>
+          (document.getElementById(id).innerText = (role || "").toUpperCase()),
+      );
+      if (role !== "admin" && role !== "gudang")
+        document.getElementById("btnTambah").style.display = "none";
+
+      // ── STATE ────────────────────────────────────────────────────────
+      let allData = [];
+      let listBarang = [];
+      let listGudang = [];
+      let listSupplier = [];
+      let listKategori = [];
+      let stokMap = {};
+
+      let selectedBarangId = null;
+      let selectedBarangNama = null;
+      let selectedGudangId = null;
+      let selectedGudangNama = null;
+      let selectedSupplierId = null;
+      let selectedSupplierNama = null;
+      let selectedKategoriId = null;
+      let selectedKategoriNama = null;
+
+      const hdr = { Authorization: `Bearer ${token}` };
+      const hdrJson = { ...hdr, "Content-Type": "application/json" };
+
+      // ── TOAST ────────────────────────────────────────────────────────
+      function showToast(msg, type = "success") {
+        const t = document.getElementById("toast");
+        const icon = document.getElementById("toastIcon");
+        const txt = document.getElementById("toastMsg");
+        txt.textContent = msg;
+        t.className =
+          "flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl text-sm font-semibold bg-white border " +
+          (type === "success" ? "border-emerald-200" : "border-red-200");
+        icon.textContent = type === "success" ? "check_circle" : "error";
+        icon.className =
+          "material-symbols-outlined text-[20px] " +
+          (type === "success" ? "text-emerald-500" : "text-red-500");
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3500);
+      }
+
+      // ── LOGOUT ──────────────────────────────────────────────────────
+      function openLogout() {
+        document.getElementById("logoutModal").classList.add("open");
+      }
+      function closeLogout() {
+        document.getElementById("logoutModal").classList.remove("open");
+      }
+      function confirmLogout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      // ── LOAD MASTER DATA ────────────────────────────────────────────
+      async function loadMasterData() {
+        try {
+          const [rBarang, rGudang, rSupplier, rKategori] = await Promise.all([
+            fetch(`${BASE_URL}/barang`, { headers: hdr }),
+            fetch(`${BASE_URL}/gudang`, { headers: hdr }),
+            fetch(`${BASE_URL}/supplier`, { headers: hdr }),
+            fetch(`${BASE_URL}/kategori`, { headers: hdr }),
+          ]);
+          listBarang = await rBarang.json().catch(() => []);
+          listGudang = await rGudang.json().catch(() => []);
+          listSupplier = await rSupplier.json().catch(() => []);
+          listKategori = await rKategori.json().catch(() => []);
+          if (!Array.isArray(listBarang)) listBarang = [];
+          if (!Array.isArray(listGudang)) listGudang = [];
+          if (!Array.isArray(listSupplier)) listSupplier = [];
+          if (!Array.isArray(listKategori)) listKategori = [];
+        } catch (e) {
+          console.error("Master data error", e);
+        }
+      }
+
+      // ── LOAD TABLE DATA ─────────────────────────────────────────────
+      async function loadData() {
+        try {
+          const res = await fetch(`${BASE_URL}/barang-masuk`, { headers: hdr });
+          allData = await res.json().catch(() => []);
+          if (!Array.isArray(allData)) allData = [];
+          renderTable(allData);
+          renderStats(allData); // FIX: dipanggil setelah data ada
+        } catch (e) {
+          console.error("Load data error", e);
+          renderTable([]);
+        }
+      }
+
+      // ── RENDER TABLE ─────────────────────────────────────────────────
+      // FIX: hapus kurung kurawal berlebih, hapus kolom po_id agar sesuai 7 kolom header
+      function renderTable(data) {
+        const tbody = document.getElementById("tableBody");
+        document.getElementById("totalBadge").textContent =
+          `${data.length} transaksi`;
+        if (!data.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-16 text-slate-400 text-sm">
+            <span class="material-symbols-outlined text-[40px] block mb-3 text-slate-300">move_to_inbox</span>
+            Belum ada data barang masuk</td></tr>`;
+          return;
+        }
+        tbody.innerHTML = data
+          .map(
+            (row, i) => `
+          <tr class="border-t border-slate-100 hover:bg-slate-50">
+            <td class="px-6 py-4 text-sm text-slate-500">${i + 1}</td>
+            <td class="px-6 py-4 text-sm font-medium text-slate-800">${row.nama_barang || "-"}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${row.nama_gudang || "-"}</td>
+            <td class="px-6 py-4 text-sm text-slate-600">${row.nama_supplier || "-"}</td>
+            <td class="px-6 py-4 text-sm text-slate-800 font-semibold">${row.qty || 0} ${row.satuan || ""}</td>
+            <td class="px-6 py-4 text-sm text-slate-500">${row.tanggal ? new Date(row.tanggal).toLocaleDateString("id-ID") : "-"}</td>
+            <td class="px-6 py-4 text-sm text-slate-500">${row.catatan || "-"}</td>
+          </tr>`,
+          )
+          .join("");
+      }
+
+      // ── RENDER STATS ─────────────────────────────────────────────────
+      // FIX: fungsi ini sebelumnya tidak ada sama sekali — ditambahkan
+      function renderStats(data) {
+        const totalTrx = data.length;
+        const totalQty = data.reduce((sum, d) => sum + (Number(d.qty) || 0), 0);
+        const gudangSet = new Set(
+          data.map((d) => d.nama_gudang).filter(Boolean),
+        );
+        const supplierSet = new Set(
+          data.map((d) => d.nama_supplier).filter(Boolean),
+        );
+
+        document.getElementById("statCards").innerHTML = `
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-blue-600 text-[22px]">move_to_inbox</span>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Total Transaksi</p>
+              <p class="text-2xl font-bold text-slate-800">${totalTrx}</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-emerald-600 text-[22px]">inventory_2</span>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Total Qty Masuk</p>
+              <p class="text-2xl font-bold text-slate-800">${totalQty.toLocaleString("id-ID")}</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-violet-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-violet-600 text-[22px]">warehouse</span>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Gudang Terlibat</p>
+              <p class="text-2xl font-bold text-slate-800">${gudangSet.size}</p>
+            </div>
+          </div>
+          <div class="bg-white rounded-2xl border border-slate-200 p-5 flex items-center gap-4">
+            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+              <span class="material-symbols-outlined text-amber-600 text-[22px]">local_shipping</span>
+            </div>
+            <div>
+              <p class="text-xs text-slate-500 font-medium">Supplier Aktif</p>
+              <p class="text-2xl font-bold text-slate-800">${supplierSet.size}</p>
+            </div>
+          </div>`;
+      }
+
+      // ── SEARCH ──────────────────────────────────────────────────────
+      // FIX: hapus trailing comma yang menyebabkan syntax error
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function () {
+          const q = this.value.toLowerCase();
+          const filtered = allData.filter(
+            (d) =>
+              (d.nama_barang || "").toLowerCase().includes(q) ||
+              (d.nama_gudang || "").toLowerCase().includes(q) ||
+              (d.nama_supplier || "").toLowerCase().includes(q),
+          );
+          renderTable(filtered);
+        });
+
+      // ── PREVIEW STOK ─────────────────────────────────────────────────
+      function updatePreview() {
+        const box = document.getElementById("previewBox");
+        if (!selectedBarangId || !selectedGudangId) {
+          box.classList.add("hidden");
+          return;
+        }
+        const key = `${selectedBarangId}_${selectedGudangId}`;
+        const lama = stokMap[key] || 0;
+        const qty = Number(document.getElementById("f_qty").value) || 0;
+        document.getElementById("previewStokLama").textContent = lama;
+        document.getElementById("previewStokBaru").textContent = lama + qty;
+        box.classList.remove("hidden");
+      }
+      document.getElementById("f_qty").addEventListener("input", updatePreview);
+
+      // ── COMBOBOX HELPER ──────────────────────────────────────────────
+      function makeCombobox({
+        inputId,
+        dropdownId,
+        clearId,
+        list,
+        labelKey,
+        iconName,
+        onSelect,
+        onAddNew,
+      }) {
+        const input = document.getElementById(inputId);
+        const dropdown = document.getElementById(dropdownId);
+        const clearBtn = document.getElementById(clearId);
+
+        function render(q) {
+          const ql = q.toLowerCase();
+          const filtered = q
+            ? list.filter((i) => (i[labelKey] || "").toLowerCase().includes(ql))
+            : list;
+          let html = filtered
+            .map(
+              (i) =>
+                `<div class="combo-item" onclick="${onSelect}(${i.id},'${(i[labelKey] || "").replace(/'/g, "\\'")}')">
+              <span class="material-symbols-outlined text-[16px] text-slate-400">${iconName}</span>
+              ${i[labelKey]}
+            </div>`,
+            )
+            .join("");
+          const exact = list.some(
+            (i) => (i[labelKey] || "").toLowerCase() === ql,
+          );
+          if (q && !exact)
+            html += `<div class="combo-item add-new" onclick="${onAddNew}('${q.replace(/'/g, "\\'")}')">
+              <span class="material-symbols-outlined text-[16px]">add_circle</span>
+              Tambah "<strong>${q}</strong>"
+            </div>`;
+          dropdown.innerHTML =
+            html || `<div class="combo-empty">Tidak ditemukan</div>`;
+        }
+
+        input.addEventListener("input", () => {
+          clearBtn.classList.toggle("show", input.value.length > 0);
+          render(input.value.trim());
+          dropdown.classList.add("open");
+        });
+        input.addEventListener("focus", () => {
+          render(input.value.trim());
+          dropdown.classList.add("open");
+        });
+        document.addEventListener("click", (e) => {
+          if (
+            !e.target.closest(`#${inputId}`) &&
+            !e.target.closest(`#${dropdownId}`)
+          )
+            dropdown.classList.remove("open");
+        });
+      }
+
+      // ── BARANG COMBOBOX ──────────────────────────────────────────────
+      function initBarangCombobox() {
+        makeCombobox({
+          inputId: "f_barang_input",
+          dropdownId: "f_barang_dropdown",
+          clearId: "f_barang_clear",
+          list: listBarang,
+          labelKey: "nama_barang",
+          iconName: "inventory_2",
+          onSelect: "pilihBarang",
+          onAddNew: "pilihBarangBaru",
+        });
+      }
+      function pilihBarang(id, nama) {
+        selectedBarangId = id;
+        selectedBarangNama = nama;
+        document.getElementById("f_barang_input").value = nama;
+        document.getElementById("f_barang_id").value = id;
+        document.getElementById("f_barang_clear").classList.add("show");
+        document.getElementById("f_barang_dropdown").classList.remove("open");
+        document.getElementById("f_barang_hint").textContent =
+          "Barang dari database ✓";
+        updatePreview();
+      }
+      async function pilihBarangBaru(nama) {
+        try {
+          const res = await fetch(`${BASE_URL}/barang`, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({ nama_barang: nama }),
+          });
+          const result = await res.json();
+          if (res.ok && result.id) {
+            listBarang.push({ id: result.id, nama_barang: nama });
+            pilihBarang(result.id, nama);
+            showToast(`Barang "${nama}" ditambahkan!`);
+          } else {
+            selectedBarangId = null;
+            selectedBarangNama = nama;
+            document.getElementById("f_barang_input").value = nama;
+            document
+              .getElementById("f_barang_dropdown")
+              .classList.remove("open");
+            document.getElementById("f_barang_hint").textContent =
+              "Barang baru (akan disimpan saat submit)";
+          }
+        } catch {
+          selectedBarangId = null;
+          selectedBarangNama = nama;
+          document.getElementById("f_barang_input").value = nama;
+          document.getElementById("f_barang_dropdown").classList.remove("open");
+          document.getElementById("f_barang_hint").textContent =
+            "Barang baru (akan disimpan saat submit)";
+        }
+      }
+      function clearBarang() {
+        selectedBarangId = null;
+        selectedBarangNama = null;
+        document.getElementById("f_barang_input").value = "";
+        document.getElementById("f_barang_id").value = "";
+        document.getElementById("f_barang_clear").classList.remove("show");
+        document.getElementById("f_barang_hint").textContent =
+          "Ketik untuk mencari, atau masukkan nama baru untuk menambah ke database";
+        document.getElementById("previewBox").classList.add("hidden");
+      }
+
+      // ── GUDANG COMBOBOX ──────────────────────────────────────────────
+      function initGudangCombobox() {
+        makeCombobox({
+          inputId: "f_gudang_input",
+          dropdownId: "f_gudang_dropdown",
+          clearId: "f_gudang_clear",
+          list: listGudang,
+          labelKey: "nama_gudang",
+          iconName: "warehouse",
+          onSelect: "pilihGudang",
+          onAddNew: "pilihGudangBaru",
+        });
+      }
+      function pilihGudang(id, nama) {
+        selectedGudangId = Number(id);
+        selectedGudangNama = nama;
+        document.getElementById("f_gudang_input").value = nama;
+        document.getElementById("f_gudang_id").value = id;
+        document.getElementById("f_gudang_clear").classList.add("show");
+        document.getElementById("f_gudang_dropdown").classList.remove("open");
+        updatePreview();
+      }
+      async function pilihGudangBaru(nama) {
+        try {
+          const res = await fetch(`${BASE_URL}/gudang`, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({ nama_gudang: nama, lokasi: "-" }),
+          });
+          const result = await res.json();
+          if (res.ok && result.id) {
+            listGudang.push({ id: result.id, nama_gudang: nama });
+            pilihGudang(result.id, nama);
+            showToast(`Gudang "${nama}" ditambahkan!`);
+          } else alert(result.message || "Gagal tambah gudang");
+        } catch (err) {
+          console.error(err);
+          alert("Server error");
+        }
+      }
+      function clearGudang() {
+        selectedGudangId = null;
+        selectedGudangNama = null;
+        document.getElementById("f_gudang_input").value = "";
+        document.getElementById("f_gudang_id").value = "";
+        document.getElementById("f_gudang_clear").classList.remove("show");
+        updatePreview();
+      }
+
+      // ── SUPPLIER COMBOBOX ────────────────────────────────────────────
+      function initSupplierCombobox() {
+        makeCombobox({
+          inputId: "f_supplier_input",
+          dropdownId: "f_supplier_dropdown",
+          clearId: "f_supplier_clear",
+          list: listSupplier,
+          labelKey: "nama_supplier",
+          iconName: "local_shipping",
+          onSelect: "pilihSupplier",
+          onAddNew: "pilihSupplierBaru",
+        });
+      }
+      function pilihSupplier(id, nama) {
+        selectedSupplierId = Number(id);
+        selectedSupplierNama = nama;
+        document.getElementById("f_supplier_input").value = nama;
+        document.getElementById("f_supplier_id").value = id;
+        document.getElementById("f_supplier_clear").classList.add("show");
+        document.getElementById("f_supplier_dropdown").classList.remove("open");
+      }
+      async function pilihSupplierBaru(nama) {
+        try {
+          const res = await fetch(`${BASE_URL}/supplier`, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({ nama_supplier: nama }),
+          });
+          const result = await res.json();
+          if (res.ok && result.id) {
+            listSupplier.push({ id: result.id, nama_supplier: nama });
+            pilihSupplier(result.id, nama);
+            showToast(`Supplier "${nama}" ditambahkan!`);
+          } else alert(result.message || "Gagal tambah supplier");
+        } catch (err) {
+          console.error(err);
+          alert("Server error");
+        }
+      }
+      function clearSupplier() {
+        selectedSupplierId = null;
+        selectedSupplierNama = null;
+        document.getElementById("f_supplier_input").value = "";
+        document.getElementById("f_supplier_id").value = "";
+        document.getElementById("f_supplier_clear").classList.remove("show");
+      }
+
+      // ── KATEGORI COMBOBOX ────────────────────────────────────────────
+      function initKategoriCombobox() {
+        makeCombobox({
+          inputId: "f_kategori_input",
+          dropdownId: "f_kategori_dropdown",
+          clearId: "f_kategori_clear",
+          list: listKategori,
+          labelKey: "nama_kategori",
+          iconName: "category",
+          onSelect: "pilihKategori",
+          onAddNew: "pilihKategoriBaru",
+        });
+      }
+      function pilihKategori(id, nama) {
+        selectedKategoriId = Number(id);
+        selectedKategoriNama = nama;
+        document.getElementById("f_kategori_input").value = nama;
+        document.getElementById("f_kategori_id").value = id;
+        document.getElementById("f_kategori_clear").classList.add("show");
+        document.getElementById("f_kategori_dropdown").classList.remove("open");
+      }
+      async function pilihKategoriBaru(nama) {
+        try {
+          const res = await fetch(`${BASE_URL}/kategori`, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({ nama_kategori: nama }),
+          });
+          const result = await res.json();
+          if (res.ok && result.id) {
+            listKategori.push({ id: result.id, nama_kategori: nama });
+            pilihKategori(result.id, nama);
+            showToast(`Kategori "${nama}" ditambahkan!`);
+          } else {
+            // simpan sebagai nama saja jika API tidak mengembalikan id
+            selectedKategoriId = null;
+            selectedKategoriNama = nama;
+            document.getElementById("f_kategori_input").value = nama;
+            document
+              .getElementById("f_kategori_dropdown")
+              .classList.remove("open");
+          }
+        } catch (err) {
+          console.error(err);
+          selectedKategoriId = null;
+          selectedKategoriNama = nama;
+          document.getElementById("f_kategori_input").value = nama;
+          document
+            .getElementById("f_kategori_dropdown")
+            .classList.remove("open");
+        }
+      }
+      function clearKategori() {
+        selectedKategoriId = null;
+        selectedKategoriNama = null;
+        document.getElementById("f_kategori_input").value = "";
+        document.getElementById("f_kategori_id").value = "";
+        document.getElementById("f_kategori_clear").classList.remove("show");
+      }
+
+      // ── FORM OPEN / CLOSE ────────────────────────────────────────────
+      function openForm() {
+        [
+          "f_barang_input",
+          "f_gudang_input",
+          "f_supplier_input",
+          "f_kategori_input",
+          "f_qty",
+          "f_satuan",
+          "f_catatan",
+        ].forEach((id) => (document.getElementById(id).value = ""));
+        [
+          "f_barang_id",
+          "f_gudang_id",
+          "f_supplier_id",
+          "f_kategori_id",
+        ].forEach((id) => (document.getElementById(id).value = ""));
+        document.getElementById("f_tanggal").value = new Date()
+          .toISOString()
+          .split("T")[0];
+        clearBarang();
+        clearGudang();
+        clearSupplier();
+        clearKategori();
+        document.getElementById("formModal").classList.add("open");
+      }
+      function closeForm() {
+        document.getElementById("formModal").classList.remove("open");
+      }
+
+      // ── SUBMIT ───────────────────────────────────────────────────────
+      async function submitBarangMasuk() {
+        const barang_nama =
+          document.getElementById("f_barang_input").value.trim() ||
+          selectedBarangNama;
+        const barang_id =
+          selectedBarangId ||
+          document.getElementById("f_barang_id").value ||
+          null;
+        let gudang_id =
+          selectedGudangId ||
+          document.getElementById("f_gudang_id").value ||
+          null;
+        const supplier_id =
+          selectedSupplierId ||
+          document.getElementById("f_supplier_id").value ||
+          null;
+        const qty = document.getElementById("f_qty").value;
+        const satuan = document.getElementById("f_satuan").value.trim();
+        const tanggal = document.getElementById("f_tanggal").value;
+        const catatan = document.getElementById("f_catatan").value.trim();
+        const kategori_id =
+          selectedKategoriId ||
+          document.getElementById("f_kategori_id").value ||
+          null;
+        const kategori_nama =
+          selectedKategoriNama ||
+          document.getElementById("f_kategori_input").value.trim() ||
+          null;
+
+        if (!gudang_id) {
+          const typed = document
+            .getElementById("f_gudang_input")
+            .value.trim()
+            .toLowerCase();
+          const found = listGudang.find(
+            (g) => (g.nama_gudang || "").toLowerCase() === typed,
+          );
+          if (found) {
+            gudang_id = found.id;
+            selectedGudangId = found.id;
+          }
+        }
+
+        if (!barang_nama) return showToast("Nama barang wajib diisi!", "error");
+        if (!gudang_id)
+          return showToast("Pilih gudang terlebih dahulu!", "error");
+        if (!supplier_id)
+          return showToast("Pilih supplier terlebih dahulu!", "error");
+        if (!qty || Number(qty) <= 0)
+          return showToast("Qty harus lebih dari 0!", "error");
+
+        const btn = document.getElementById("btnSubmit");
+        btn.disabled = true;
+        btn.innerHTML = "Menyimpan...";
+
+        try {
+          const payload = {
+            barang_id: barang_id ? Number(barang_id) : null,
+            nama_barang: barang_nama,
+            gudang_id: Number(gudang_id),
+            supplier_id: Number(supplier_id),
+            qty: Number(qty),
+            satuan: satuan || null,
+            tanggal: tanggal || null,
+            catatan: catatan || null,
+            kategori_id: kategori_id ? Number(kategori_id) : null,
+            nama_kategori: kategori_nama || null,
+          };
+          const res = await fetch(`${BASE_URL}/barang-masuk`, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify(payload),
+          });
+          const result = await res.json();
+          if (res.ok) {
+            showToast(result.message || "Berhasil disimpan!");
+            closeForm();
+            await Promise.all([loadMasterData(), loadData()]);
+          } else showToast(result.message || "Gagal simpan!", "error");
+        } catch (err) {
+          console.error(err);
+          showToast("Server error!", "error");
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">add_circle</span> Simpan Barang Masuk`;
+        }
+      }
+
+      // ── INIT ─────────────────────────────────────────────────────────
+      window.onload = async () => {
+        await loadMasterData();
+        initBarangCombobox();
+        initGudangCombobox();
+        initSupplierCombobox();
+        initKategoriCombobox();
+        await loadData();
+      };
+    </script>
+  </body>
+</html>

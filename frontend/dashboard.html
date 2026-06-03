@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - LogistikSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: #f1f5f9;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      ::-webkit-scrollbar {
+        width: 7px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex min-h-screen">
+      <!-- SIDEBAR -->
+      <aside
+        class="w-[260px] bg-slate-950 text-white flex flex-col justify-between fixed h-screen z-40"
+      >
+        <div class="overflow-y-auto flex-1">
+          <div class="px-6 py-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-11 h-11 bg-blue-500 rounded-2xl flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined text-white"
+                  >warehouse</span
+                >
+              </div>
+              <div>
+                <h1 class="font-bold text-lg">LogistikSmart</h1>
+                <p class="text-slate-400 text-xs">Management System</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 px-3 tracking-wider"
+            >
+              Menu Utama
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500 font-medium text-sm"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >dashboard</span
+                >Dashboard
+              </a>
+              <a
+                href="barang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >inventory_2</span
+                >Barang
+              </a>
+              <a
+                href="supplier.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >local_shipping</span
+                >Supplier
+              </a>
+              <a
+                href="gudang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >warehouse</span
+                >Gudang
+              </a>
+              <a
+                href="stok.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]">stacks</span
+                >Stok Gudang
+              </a>
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Transaksi
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="barang-masuk.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >move_to_inbox</span
+                >Barang Masuk
+              </a>
+              <a
+                href="barang-keluar.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]">outbox</span
+                >Barang Keluar
+              </a>
+              <a
+                href="mutasi.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >sync_alt</span
+                >Mutasi Gudang
+              </a>
+              <a
+                href="po.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >shopping_cart</span
+                >Purchase Order
+              </a>
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Analitik
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="riwayat.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >history</span
+                >Riwayat
+              </a>
+              <a
+                href="laporan.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 transition text-sm text-slate-300"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >assessment</span
+                >Laporan
+              </a>
+            </nav>
+          </div>
+        </div>
+        <div class="p-4 border-t border-slate-800">
+          <div class="bg-slate-900 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-11 h-11 rounded-full"
+              />
+              <div>
+                <h3 id="username" class="font-semibold text-sm">User</h3>
+                <p id="userrole" class="text-slate-400 text-xs uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="logout()"
+              class="w-full mt-4 bg-red-500 hover:bg-red-600 transition h-10 rounded-xl font-semibold text-sm flex items-center justify-center gap-2"
+            >
+              <span class="material-symbols-outlined text-[18px]">logout</span>
+              Logout
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="flex-1 ml-[260px]">
+        <!-- TOPBAR -->
+        <div
+          class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30"
+        >
+          <div
+            class="bg-slate-100 rounded-2xl h-11 w-[320px] flex items-center px-4 gap-2"
+          >
+            <span class="material-symbols-outlined text-slate-400 text-[20px]"
+              >search</span
+            >
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Cari barang..."
+              class="bg-transparent outline-none w-full text-sm"
+            />
+          </div>
+          <div class="flex items-center gap-3">
+            <div>
+              <h3 id="usernameTop" class="font-semibold text-slate-800 text-sm">
+                User
+              </h3>
+              <p id="userroleTop" class="text-slate-500 text-xs uppercase">
+                USER
+              </p>
+            </div>
+            <img
+              src="https://i.pravatar.cc/100"
+              class="w-10 h-10 rounded-full"
+            />
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-8">
+          <div class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-800">Dashboard Utama</h1>
+            <p class="text-slate-500 text-sm mt-1">
+              Pantau operasional logistik dan inventaris secara real-time.
+            </p>
+          </div>
+
+          <!-- STAT CARDS -->
+          <div class="grid grid-cols-4 gap-6 mb-8">
+            <div
+              class="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm"
+            >
+              <p
+                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1"
+              >
+                Total Barang
+              </p>
+              <h2 id="totalBarang" class="text-3xl font-black text-slate-800">
+                —
+              </h2>
+            </div>
+            <div
+              class="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm"
+            >
+              <p
+                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1"
+              >
+                Total Supplier
+              </p>
+              <h2 id="totalSupplier" class="text-3xl font-black text-slate-800">
+                —
+              </h2>
+            </div>
+            <div
+              class="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm"
+            >
+              <p
+                class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1"
+              >
+                Total Gudang
+              </p>
+              <h2 id="totalGudang" class="text-3xl font-black text-slate-800">
+                —
+              </h2>
+            </div>
+            <div
+              class="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm"
+            >
+              <p
+                class="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-1"
+              >
+                Stok Kritis
+              </p>
+              <h2 id="stokKritis" class="text-3xl font-black text-red-500">
+                —
+              </h2>
+            </div>
+          </div>
+
+          <!-- GRID -->
+          <div class="grid grid-cols-3 gap-8">
+            <!-- TABLE -->
+            <div
+              class="col-span-2 bg-white rounded-[32px] border border-slate-200 overflow-hidden shadow-sm"
+            >
+              <div
+                class="px-6 py-5 border-b border-slate-100 flex items-center justify-between"
+              >
+                <h3 class="font-bold text-slate-800 text-lg">
+                  Ringkasan Barang
+                </h3>
+                <a
+                  href="barang.html"
+                  class="text-blue-500 text-xs font-bold hover:underline"
+                  >Lihat Semua</a
+                >
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="bg-slate-50">
+                    <tr>
+                      <th
+                        class="text-left px-6 py-4 text-xs font-bold text-slate-400 uppercase"
+                      >
+                        Nama Barang
+                      </th>
+                      <th
+                        class="text-left px-6 py-4 text-xs font-bold text-slate-400 uppercase"
+                      >
+                        Kategori
+                      </th>
+                      <th
+                        class="text-left px-6 py-4 text-xs font-bold text-slate-400 uppercase"
+                      >
+                        Stok
+                      </th>
+                      <th
+                        class="text-left px-6 py-4 text-xs font-bold text-slate-400 uppercase"
+                      >
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="tableBarang">
+                    <tr>
+                      <td
+                        colspan="4"
+                        class="px-6 py-10 text-center text-slate-400"
+                      >
+                        Loading...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- AKTIVITAS -->
+            <div
+              class="bg-white rounded-[32px] border border-slate-200 p-6 shadow-sm"
+            >
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-slate-800 text-lg">Aktivitas</h3>
+                <button
+                  onclick="fetchRiwayat()"
+                  class="text-slate-400 hover:text-blue-500 transition"
+                >
+                  <span class="material-symbols-outlined text-[20px]"
+                    >refresh</span
+                  >
+                </button>
+              </div>
+              <div id="aktivitasContainer" class="space-y-5">
+                <p class="text-slate-400 text-sm text-center">Loading...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // ── AUTH ─────────────────────────────────────────────────
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const name = localStorage.getItem("name");
+
+      if (!token) {
+        window.location.href = "login.html";
+      }
+
+      document.getElementById("username").innerText = name || "User";
+      document.getElementById("usernameTop").innerText = name || "User";
+      document.getElementById("userrole").innerText = (
+        role || "USER"
+      ).toUpperCase();
+      document.getElementById("userroleTop").innerText = (
+        role || "USER"
+      ).toUpperCase();
+
+      const H = { Authorization: `Bearer ${token}` };
+
+      // ── STATE ─────────────────────────────────────────────────
+      let allBarang = [];
+      let stokMap = {};
+
+      // ── HELPER ────────────────────────────────────────────────
+      function toArray(json) {
+        if (Array.isArray(json)) return json;
+        if (Array.isArray(json?.data)) return json.data;
+        return [];
+      }
+
+      // ── LOAD DASHBOARD ────────────────────────────────────────
+      async function loadDashboardData() {
+        try {
+          const [resB, resStok, resG, resSup] = await Promise.all([
+            fetch("http://127.0.0.1:5000/barang", { headers: H }),
+            fetch("http://127.0.0.1:5000/stok-gudang", { headers: H }),
+            fetch("http://127.0.0.1:5000/gudang", { headers: H }),
+            fetch("http://127.0.0.1:5000/supplier", { headers: H }),
+          ]);
+
+          if (resB.status === 401 || resStok.status === 401) {
+            localStorage.clear();
+            window.location.href = "login.html";
+            return;
+          }
+
+          allBarang = toArray(await resB.json());
+          const stokList = toArray(await resStok.json());
+          const gudangList = toArray(await resG.json());
+          const supplierList = toArray(await resSup.json());
+
+          stokMap = {};
+          stokList.forEach((s) => {
+            const bid = s.barang_id ?? s.id_barang;
+            stokMap[bid] = (stokMap[bid] || 0) + Number(s.stok ?? s.qty ?? 0);
+          });
+
+          document.getElementById("totalBarang").innerText = allBarang.length;
+          document.getElementById("totalGudang").innerText = gudangList.length;
+          document.getElementById("totalSupplier").innerText =
+            supplierList.length;
+
+          const kritisCount = allBarang.filter(
+            (b) => (stokMap[b.id] ?? 0) <= 10,
+          ).length;
+          document.getElementById("stokKritis").innerText = kritisCount;
+
+          renderTable(allBarang);
+        } catch (err) {
+          console.error("loadDashboardData error:", err);
+        }
+      }
+
+      // ── RENDER TABEL ──────────────────────────────────────────
+      function renderTable(data) {
+        const tbody = document.getElementById("tableBarang");
+
+        if (!data.length) {
+          tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-10 text-center text-slate-400">Tidak ada data</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = data
+          .slice(0, 7)
+          .map((item) => {
+            const stok = stokMap[item.id] ?? 0;
+            const isKritis = stok <= 10;
+            return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-6 py-4 font-bold text-slate-800">${item.nama_barang}</td>
+              <td class="px-6 py-4 text-slate-500">${item.nama_kategori || "-"}</td>
+              <td class="px-6 py-4 font-bold ${isKritis ? "text-red-500" : "text-slate-700"}">${stok}</td>
+              <td class="px-6 py-4">
+                ${
+                  isKritis
+                    ? `<span class="bg-red-50 text-red-500 border border-red-100 text-[11px] font-bold px-3 py-1 rounded-full">KRITIS</span>`
+                    : `<span class="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[11px] font-bold px-3 py-1 rounded-full">AMAN</span>`
+                }
+              </td>
+            </tr>`;
+          })
+          .join("");
+      }
+
+      // ── SEARCH ────────────────────────────────────────────────
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", function () {
+          const kw = this.value.toLowerCase();
+          const filtered = allBarang.filter(
+            (i) =>
+              (i.nama_barang || "").toLowerCase().includes(kw) ||
+              (i.nama_kategori || "").toLowerCase().includes(kw),
+          );
+          renderTable(filtered);
+        });
+
+      // ── AKTIVITAS ─────────────────────────────────────────────
+      const tipeConfig = {
+        "Barang Masuk": {
+          icon: "move_to_inbox",
+          color: "bg-emerald-50 text-emerald-500",
+        },
+        "Barang Keluar": { icon: "outbox", color: "bg-red-50 text-red-400" },
+        "Mutasi Gudang": {
+          icon: "sync_alt",
+          color: "bg-blue-50 text-blue-500",
+        },
+        "Purchase Order": {
+          icon: "shopping_cart",
+          color: "bg-purple-50 text-purple-500",
+        },
+      };
+
+      async function fetchRiwayat() {
+        const container = document.getElementById("aktivitasContainer");
+        container.innerHTML = `<p class="text-slate-400 text-sm text-center">Loading...</p>`;
+
+        try {
+          const res = await fetch("http://127.0.0.1:5000/riwayat", {
+            headers: H,
+          });
+
+          if (res.status === 401) {
+            localStorage.clear();
+            window.location.href = "login.html";
+            return;
+          }
+
+          const data = await res.json();
+          const list = toArray(data);
+
+          if (!list.length) {
+            container.innerHTML = `<p class="text-slate-400 text-sm text-center py-4">Belum ada aktivitas</p>`;
+            return;
+          }
+
+          container.innerHTML = list
+            .slice(0, 6)
+            .map((item) => {
+              const cfg = tipeConfig[item.jenis] ?? {
+                icon: "history",
+                color: "bg-slate-100 text-slate-500",
+              };
+              const tgl = item.tanggal ? item.tanggal.split("T")[0] : "-";
+              const ket = item.keterangan || item.nama_gudang || "";
+
+              return `
+              <div class="flex gap-3 items-start">
+                <div class="w-9 h-9 rounded-full ${cfg.color} flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-[17px]">${cfg.icon}</span>
+                </div>
+                <div class="min-w-0">
+                  <h4 class="font-bold text-slate-800 text-[13px]">${item.jenis || "Aktivitas"}</h4>
+                  <p class="text-slate-500 text-[12px] leading-snug">${item.nama_barang || "-"} · ${item.qty ?? 0} unit</p>
+                  ${ket ? `<p class="text-slate-400 text-[11px]">${ket}</p>` : ""}
+                  <span class="text-slate-300 text-[10px] font-semibold uppercase">${tgl}</span>
+                </div>
+              </div>`;
+            })
+            .join("");
+        } catch (err) {
+          console.error("fetchRiwayat error:", err);
+          container.innerHTML = `<p class="text-red-400 text-sm text-center py-4">Gagal memuat aktivitas</p>`;
+        }
+      }
+
+      // ── LOGOUT ────────────────────────────────────────────────
+      function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      // ── INIT ──────────────────────────────────────────────────
+      window.onload = () => {
+        loadDashboardData();
+        fetchRiwayat();
+      };
+    </script>
+  </body>
+</html>

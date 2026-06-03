@@ -1,0 +1,1205 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Purchase Order - LogistikSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: #f1f5f9;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      ::-webkit-scrollbar {
+        width: 7px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+      .sidebar-text {
+        font-size: 14px;
+      }
+
+      #logoutModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      #logoutModal.open {
+        display: flex;
+      }
+      .modal-box {
+        background: white;
+        border-radius: 24px;
+        padding: 32px;
+        width: 340px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+      }
+
+      .modal-wrap {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-wrap.open {
+        display: flex;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .form-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+      }
+      .form-group input[type="text"],
+      .form-group input[type="number"] {
+        height: 44px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0 14px;
+        font-size: 14px;
+        outline: none;
+        width: 100%;
+        transition: border-color 0.15s;
+        background: white;
+      }
+      .form-group input:focus {
+        border-color: #3b82f6;
+      }
+
+      .combo-wrap {
+        position: relative;
+      }
+      .combo-wrap input {
+        padding-right: 36px;
+      }
+      .combo-clear {
+        display: none;
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: #e2e8f0;
+        font-size: 11px;
+        color: #64748b;
+        cursor: pointer;
+        border: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .combo-clear.show {
+        display: flex;
+      }
+      .combo-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 14px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        max-height: 200px;
+        overflow-y: auto;
+        padding: 6px;
+      }
+      .combo-dropdown.open {
+        display: block;
+      }
+      .combo-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        color: #334155;
+        cursor: pointer;
+        transition: background 0.1s;
+      }
+      .combo-item:hover {
+        background: #f1f5f9;
+      }
+      .combo-item.add-new {
+        font-weight: 600;
+        color: #2563eb;
+      }
+
+      /* Disable style for restricted radio buttons */
+      input[type="radio"]:disabled + span,
+      input[type="radio"]:disabled ~ span {
+        opacity: 0.35;
+      }
+      label:has(input[type="radio"]:disabled) {
+        opacity: 0.45;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Logout Modal -->
+    <div id="logoutModal">
+      <div class="modal-box text-center">
+        <div
+          class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="material-symbols-outlined text-red-500 text-[28px]"
+            >logout</span
+          >
+        </div>
+        <h2 class="font-bold text-slate-800 text-lg mb-1">Yakin logout?</h2>
+        <p class="text-slate-500 text-sm mb-6">Kamu akan keluar dari sistem</p>
+        <div class="flex gap-3">
+          <button
+            onclick="closeLogout()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmLogout()"
+            class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Modal (Tambah PO) -->
+    <div id="formModal" class="modal-wrap">
+      <div class="bg-white rounded-3xl shadow-2xl w-[520px] overflow-hidden">
+        <div
+          class="px-7 py-6 border-b border-slate-100 flex items-center justify-between"
+        >
+          <div>
+            <h2 class="font-bold text-slate-800 text-lg">
+              Tambah Purchase Order
+            </h2>
+            <p class="text-slate-500 text-sm">Buat pesanan pembelian barang</p>
+          </div>
+          <button
+            onclick="closeForm()"
+            class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="p-7 space-y-5">
+          <!-- Supplier -->
+          <div class="form-group">
+            <label>Supplier</label>
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="supplier_input"
+                placeholder="Cari atau ketik supplier baru..."
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="supplier_clear"
+                onclick="clearSupplier()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="supplier_dropdown"></div>
+            </div>
+            <input type="hidden" id="supplier_id" />
+          </div>
+          <!-- Barang -->
+          <div class="form-group">
+            <label
+              >Barang
+              <span class="text-slate-400 text-xs"
+                >(pilih atau ketik barang baru)</span
+              ></label
+            >
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="barang_input"
+                autocomplete="off"
+                placeholder="Cari atau ketik nama barang..."
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="barang_clear"
+                onclick="clearBarang()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="barang_dropdown"></div>
+            </div>
+            <input type="hidden" id="barang_id" />
+          </div>
+          <!-- Gudang -->
+          <div class="form-group">
+            <label>Gudang Tujuan</label>
+            <div class="combo-wrap">
+              <input
+                type="text"
+                id="gudang_input"
+                placeholder="Cari atau ketik gudang baru..."
+                autocomplete="off"
+              />
+              <button
+                type="button"
+                class="combo-clear"
+                id="gudang_clear"
+                onclick="clearGudang()"
+              >
+                ✕
+              </button>
+              <div class="combo-dropdown" id="gudang_dropdown"></div>
+            </div>
+            <input type="hidden" id="gudang_id" />
+          </div>
+          <!-- Qty -->
+          <div class="form-group">
+            <label>Qty</label>
+            <input type="number" id="qty" placeholder="0" min="1" />
+          </div>
+        </div>
+        <div class="px-7 py-5 border-t border-slate-100 bg-slate-50 flex gap-3">
+          <button
+            onclick="closeForm()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium"
+          >
+            Batal
+          </button>
+          <button
+            onclick="submitPO()"
+            class="flex-1 h-11 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-semibold text-sm transition"
+          >
+            Simpan PO
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Modal -->
+    <div id="statusModal" class="modal-wrap">
+      <div class="bg-white rounded-3xl shadow-2xl w-[400px] overflow-hidden">
+        <div
+          class="px-7 py-6 border-b border-slate-100 flex items-center justify-between"
+        >
+          <div>
+            <h2 class="font-bold text-slate-800 text-lg">Update Status PO</h2>
+            <p class="text-slate-500 text-sm" id="statusModalSubtitle">
+              Ubah status purchase order
+            </p>
+          </div>
+          <button
+            onclick="closeStatusModal()"
+            class="w-9 h-9 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div class="p-7">
+          <p class="text-sm font-semibold text-slate-600 mb-3">
+            Pilih Status Baru
+          </p>
+          <div class="space-y-3">
+            <label
+              class="flex items-center gap-3 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-amber-300 hover:bg-amber-50 transition has-[:checked]:border-amber-400 has-[:checked]:bg-amber-50"
+            >
+              <input
+                type="radio"
+                name="statusRadio"
+                value="pending"
+                class="accent-amber-500"
+              />
+              <span class="material-symbols-outlined text-amber-500 text-[20px]"
+                >pending</span
+              >
+              <span class="font-semibold text-slate-700 text-sm">Pending</span>
+            </label>
+            <label
+              class="flex items-center gap-3 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-blue-300 hover:bg-blue-50 transition has-[:checked]:border-blue-400 has-[:checked]:bg-blue-50"
+            >
+              <input
+                type="radio"
+                name="statusRadio"
+                value="approved"
+                class="accent-blue-500"
+              />
+              <span class="material-symbols-outlined text-blue-500 text-[20px]"
+                >check_circle</span
+              >
+              <span class="font-semibold text-slate-700 text-sm">Approved</span>
+            </label>
+            <label
+              class="flex items-center gap-3 p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-emerald-300 hover:bg-emerald-50 transition has-[:checked]:border-emerald-400 has-[:checked]:bg-emerald-50"
+            >
+              <input
+                type="radio"
+                name="statusRadio"
+                value="received"
+                class="accent-emerald-500"
+              />
+              <span
+                class="material-symbols-outlined text-emerald-500 text-[20px]"
+                >inventory</span
+              >
+              <span class="font-semibold text-slate-700 text-sm">Received</span>
+            </label>
+          </div>
+        </div>
+        <div class="px-7 py-5 border-t border-slate-100 bg-slate-50 flex gap-3">
+          <button
+            onclick="closeStatusModal()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-medium"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmUpdateStatus()"
+            class="flex-1 h-11 rounded-xl bg-slate-900 hover:bg-black text-white font-semibold text-sm transition"
+          >
+            Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        class="w-[260px] bg-slate-950 text-white fixed h-screen flex flex-col justify-between"
+      >
+        <div class="overflow-y-auto flex-1">
+          <div class="px-6 py-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-11 h-11 bg-blue-500 rounded-2xl flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined">shopping_cart</span>
+              </div>
+              <div>
+                <h1 class="font-bold text-lg">LogistikSmart</h1>
+                <p class="text-slate-400 text-xs">Management System</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4">
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 px-3 tracking-wider"
+            >
+              Menu Utama
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >dashboard</span
+                >Dashboard
+              </a>
+              <a
+                href="barang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >inventory_2</span
+                >Barang
+              </a>
+              <a
+                href="supplier.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >local_shipping</span
+                >Supplier
+              </a>
+              <a
+                href="gudang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >warehouse</span
+                >Gudang
+              </a>
+              <a
+                href="stok.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]">stacks</span
+                >Stok Gudang
+              </a>
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Transaksi
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="barang-masuk.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >move_to_inbox</span
+                >Barang Masuk
+              </a>
+              <a
+                href="barang-keluar.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]">outbox</span
+                >Barang Keluar
+              </a>
+              <a
+                href="mutasi.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >sync_alt</span
+                >Mutasi Gudang
+              </a>
+              <a
+                href="po.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >shopping_cart</span
+                >Purchase Order
+              </a>
+            </nav>
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Analitik
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="riwayat.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >history</span
+                >Riwayat
+              </a>
+              <a
+                href="laporan.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >assessment</span
+                >Laporan
+              </a>
+            </nav>
+          </div>
+        </div>
+        <div class="p-4 border-t border-slate-800">
+          <div class="bg-slate-900 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-11 h-11 rounded-full"
+              />
+              <div>
+                <h3 id="username" class="font-semibold text-sm">User</h3>
+                <p id="userrole" class="text-slate-400 text-xs uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="openLogout()"
+              class="w-full mt-4 bg-red-500 hover:bg-red-600 transition h-10 rounded-xl text-sm font-semibold"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1 ml-[260px]">
+        <div
+          class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30"
+        >
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">Purchase Order</h1>
+            <p class="text-slate-500 text-sm">
+              Kelola pesanan pembelian barang
+            </p>
+          </div>
+          <div class="flex items-center gap-5">
+            <button
+              class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-slate-600"
+                >manage_accounts</span
+              >
+            </button>
+            <div class="h-8 w-[1px] bg-slate-300"></div>
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-10 h-10 rounded-full"
+              />
+              <div>
+                <h3 id="usernameTop" class="font-semibold text-sm">User</h3>
+                <p id="userroleTop" class="text-xs text-slate-500 uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <div class="flex justify-between gap-4 mb-6">
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Cari purchase order..."
+              class="bg-white border border-slate-200 rounded-2xl px-5 py-3 w-[280px] outline-none"
+            />
+            <button
+              id="btnTambah"
+              onclick="tambahPO()"
+              class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2 transition"
+            >
+              <span class="material-symbols-outlined">add</span>Tambah PO
+            </button>
+          </div>
+
+          <div class="grid grid-cols-4 gap-4 mb-6" id="statCards"></div>
+
+          <div
+            class="bg-white rounded-3xl border border-slate-200 overflow-hidden"
+          >
+            <div class="px-6 py-5 border-b border-slate-200">
+              <h3 class="font-bold text-lg">Data Purchase Order</h3>
+              <p class="text-sm text-slate-500">
+                Seluruh transaksi purchase order
+              </p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-slate-50">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      ID
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      SUPPLIER
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      BARANG
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      GUDANG
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      QTY
+                    </th>
+                    <th class="px-6 py-4 text-left text-xs text-slate-500">
+                      STATUS
+                    </th>
+                    <th class="px-6 py-4 text-center text-xs text-slate-500">
+                      AKSI
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:5000/purchase-order";
+      const SUPPLIER_URL = "http://localhost:5000/supplier";
+      const BARANG_URL = "http://localhost:5000/barang";
+      const GUDANG_URL = "http://localhost:5000/gudang";
+
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const name = localStorage.getItem("name");
+
+      if (!token) window.location.href = "login.html";
+
+      const hdrJson = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      document.getElementById("username").innerText = name || "User";
+      document.getElementById("userrole").innerText = role;
+      document.getElementById("usernameTop").innerText = name || "User";
+      document.getElementById("userroleTop").innerText = role;
+
+      // Hanya purchasing & admin yang bisa buat PO baru
+      if (role !== "admin" && role !== "purchasing") {
+        document.getElementById("btnTambah").style.display = "none";
+      }
+
+      let allData = [];
+      let suppliers = [];
+      let listBarang = [];
+      let gudangs = [];
+      let selectedSupplier = null;
+      let selectedBarangId = null;
+      let selectedBarangNama = null;
+      let selectedGudang = null;
+      let editingId = null;
+
+      // ── LOAD MASTER DATA ──────────────────────────────────────────
+      async function loadMasterData() {
+        try {
+          const [sRes, gRes] = await Promise.all([
+            fetch(SUPPLIER_URL, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(GUDANG_URL, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ]);
+          suppliers = await sRes.json().catch(() => []);
+          gudangs = await gRes.json().catch(() => []);
+          if (!Array.isArray(suppliers)) suppliers = [];
+          if (!Array.isArray(gudangs)) gudangs = [];
+        } catch (err) {
+          console.log("loadMasterData error:", err);
+        }
+      }
+
+      async function loadBarang() {
+        try {
+          const res = await fetch(BARANG_URL, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          listBarang = await res.json().catch(() => []);
+          if (!Array.isArray(listBarang)) listBarang = [];
+        } catch (err) {
+          console.log("loadBarang error:", err);
+        }
+      }
+
+      async function loadData() {
+        try {
+          const res = await fetch(API_URL, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const result = await res.json();
+          allData = Array.isArray(result) ? result : [];
+          renderStats();
+          renderTable(allData);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      // ── STATS CARDS ───────────────────────────────────────────────
+      function renderStats() {
+        const total = allData.length;
+        const pending = allData.filter((i) => i.status === "pending").length;
+        const approved = allData.filter((i) => i.status === "approved").length;
+        const received = allData.filter((i) => i.status === "received").length;
+        document.getElementById("statCards").innerHTML = `
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-xs text-slate-500 mb-1">TOTAL PO</p>
+            <h2 class="text-3xl font-bold">${total}</h2>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-xs text-slate-500 mb-1">PENDING</p>
+            <h2 class="text-3xl font-bold text-amber-500">${pending}</h2>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-xs text-slate-500 mb-1">APPROVED</p>
+            <h2 class="text-3xl font-bold text-blue-500">${approved}</h2>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <p class="text-xs text-slate-500 mb-1">RECEIVED</p>
+            <h2 class="text-3xl font-bold text-emerald-500">${received}</h2>
+          </div>
+        `;
+      }
+
+      // ── TABLE ─────────────────────────────────────────────────────
+      function getStatusBadge(status) {
+        if (status === "pending")
+          return `<span class="bg-amber-50 text-amber-600 border border-amber-100 px-3 py-1 rounded-full text-xs font-semibold">Pending</span>`;
+        if (status === "approved")
+          return `<span class="bg-blue-50 text-blue-600 border border-blue-100 px-3 py-1 rounded-full text-xs font-semibold">Approved</span>`;
+        return `<span class="bg-emerald-50 text-emerald-600 border border-emerald-100 px-3 py-1 rounded-full text-xs font-semibold">Received</span>`;
+      }
+
+      function canUpdateStatus() {
+        // Purchasing tidak bisa ubah status — hanya manajer, gudang, admin
+        return role === "admin" || role === "manager" || role === "gudang";
+      }
+
+      function renderTable(data) {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+        if (!data.length) {
+          tbody.innerHTML = `<tr><td colspan="7" class="px-6 py-10 text-center text-slate-400 text-sm">Belum ada data purchase order</td></tr>`;
+          return;
+        }
+        data.forEach((item) => {
+          tbody.innerHTML += `
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="px-6 py-4 font-bold">#PO-${item.id}</td>
+              <td class="px-6 py-4">${item.nama_supplier || "-"}</td>
+              <td class="px-6 py-4">${item.nama_barang || "-"}</td>
+              <td class="px-6 py-4">${item.nama_gudang || "-"}</td>
+              <td class="px-6 py-4 font-semibold">${item.qty || 0}</td>
+              <td class="px-6 py-4">${getStatusBadge(item.status)}</td>
+              <td class="px-6 py-4 text-center">
+                ${
+                  canUpdateStatus()
+                    ? `<button onclick="updateStatus(${item.id}, '${item.status}')"
+                       class="bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl text-xs transition">
+                       Update Status
+                     </button>`
+                    : `<span class="text-slate-300 text-xs">—</span>`
+                }
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      document.getElementById("searchInput").addEventListener("input", (e) => {
+        const v = e.target.value.toLowerCase();
+        if (!v) {
+          renderTable(allData);
+          return;
+        }
+        renderTable(
+          allData.filter(
+            (item) =>
+              (item.nama_barang || "").toLowerCase().includes(v) ||
+              (item.nama_supplier || "").toLowerCase().includes(v) ||
+              (item.nama_gudang || "").toLowerCase().includes(v),
+          ),
+        );
+      });
+
+      // ── FORM MODAL ────────────────────────────────────────────────
+      function tambahPO() {
+        resetForm();
+        document.getElementById("formModal").classList.add("open");
+      }
+      function closeForm() {
+        document.getElementById("formModal").classList.remove("open");
+        resetForm();
+      }
+      function resetForm() {
+        clearSupplier();
+        clearBarang();
+        clearGudang();
+        document.getElementById("qty").value = "";
+        ["supplier_dropdown", "barang_dropdown", "gudang_dropdown"].forEach(
+          (id) => document.getElementById(id).classList.remove("open"),
+        );
+      }
+
+      // ── SUPPLIER COMBOBOX (with "Tambah Baru") ────────────────────
+      document
+        .getElementById("supplier_input")
+        .addEventListener("input", (e) =>
+          renderSupplierDropdown(e.target.value),
+        );
+      document
+        .getElementById("supplier_input")
+        .addEventListener("focus", (e) =>
+          renderSupplierDropdown(e.target.value),
+        );
+
+      function renderSupplierDropdown(keyword = "") {
+        const dropdown = document.getElementById("supplier_dropdown");
+        const filtered = suppliers.filter((i) =>
+          (i.nama_supplier || "").toLowerCase().includes(keyword.toLowerCase()),
+        );
+        let html = filtered
+          .map(
+            (i) => `
+          <div class="combo-item" onclick="pilihSupplier(${i.id}, '${(i.nama_supplier || "").replace(/'/g, "\\'")}')">
+            <span class="material-symbols-outlined text-[18px]">local_shipping</span>
+            ${i.nama_supplier}
+          </div>`,
+          )
+          .join("");
+
+        // Tombol "Tambah Supplier Baru" — tampil jika ada keyword & belum exact match
+        if (keyword.trim()) {
+          const exactMatch = suppliers.some(
+            (s) =>
+              (s.nama_supplier || "").toLowerCase() === keyword.toLowerCase(),
+          );
+          if (!exactMatch) {
+            html += `
+              <div class="combo-item add-new"
+                onclick="pilihSupplierBaru('${keyword.replace(/'/g, "\\'")}')">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                Tambah "${keyword}"
+              </div>`;
+          }
+        }
+
+        dropdown.innerHTML =
+          html ||
+          `<div class="px-4 py-3 text-sm text-slate-400">Ketik nama supplier...</div>`;
+        dropdown.classList.add("open");
+      }
+
+      function pilihSupplier(id, nama) {
+        selectedSupplier = id;
+        document.getElementById("supplier_input").value = nama;
+        document.getElementById("supplier_id").value = id;
+        document.getElementById("supplier_dropdown").classList.remove("open");
+        document.getElementById("supplier_clear").classList.add("show");
+      }
+      function clearSupplier() {
+        selectedSupplier = null;
+        document.getElementById("supplier_input").value = "";
+        document.getElementById("supplier_id").value = "";
+        document.getElementById("supplier_clear").classList.remove("show");
+      }
+
+      async function pilihSupplierBaru(nama) {
+        try {
+          const res = await fetch(SUPPLIER_URL, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({ nama_supplier: nama }),
+          });
+          const result = await res.json();
+          if (!res.ok) return alert(result.message || "Gagal tambah supplier");
+          await loadMasterData();
+          const baru = suppliers.find(
+            (s) => (s.nama_supplier || "").toLowerCase() === nama.toLowerCase(),
+          );
+          if (baru) pilihSupplier(baru.id, baru.nama_supplier);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      // ── BARANG COMBOBOX (with "Tambah Baru") ─────────────────────
+      function initBarangCombobox() {
+        const input = document.getElementById("barang_input");
+        const dropdown = document.getElementById("barang_dropdown");
+
+        function renderBarangDropdown() {
+          const q = input.value.toLowerCase();
+          const filtered = listBarang.filter((b) =>
+            (b.nama_barang || "").toLowerCase().includes(q),
+          );
+          let html = filtered
+            .map(
+              (b) => `
+            <div class="combo-item" onclick="pilihBarang(${b.id}, '${(b.nama_barang || "").replace(/'/g, "\\'")}')">
+              <span class="material-symbols-outlined text-[18px]">inventory_2</span>
+              ${b.nama_barang}
+            </div>`,
+            )
+            .join("");
+
+          if (input.value.trim()) {
+            html += `
+              <div class="combo-item add-new"
+                onclick="pilihBarangBaru('${input.value.replace(/'/g, "\\'")}')">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                Tambah "${input.value}"
+              </div>`;
+          }
+
+          dropdown.innerHTML =
+            html ||
+            `<div class="px-4 py-3 text-sm text-slate-400">Ketik nama barang...</div>`;
+          dropdown.classList.add("open");
+        }
+
+        input.addEventListener("input", renderBarangDropdown);
+        input.addEventListener("focus", renderBarangDropdown);
+      }
+
+      function pilihBarang(id, nama) {
+        selectedBarangId = id;
+        selectedBarangNama = nama;
+        document.getElementById("barang_input").value = nama;
+        document.getElementById("barang_id").value = id;
+        document.getElementById("barang_dropdown").classList.remove("open");
+        document.getElementById("barang_clear").classList.add("show");
+      }
+      function pilihBarangBaru(nama) {
+        selectedBarangId = null;
+        selectedBarangNama = nama;
+        document.getElementById("barang_input").value = nama;
+        document.getElementById("barang_id").value = "";
+        document.getElementById("barang_dropdown").classList.remove("open");
+        document.getElementById("barang_clear").classList.add("show");
+      }
+      function clearBarang() {
+        selectedBarangId = null;
+        selectedBarangNama = null;
+        document.getElementById("barang_input").value = "";
+        document.getElementById("barang_id").value = "";
+        document.getElementById("barang_clear").classList.remove("show");
+      }
+
+      // ── GUDANG COMBOBOX (with "Tambah Baru") ──────────────────────
+      document
+        .getElementById("gudang_input")
+        .addEventListener("input", (e) => renderGudangDropdown(e.target.value));
+      document
+        .getElementById("gudang_input")
+        .addEventListener("focus", (e) => renderGudangDropdown(e.target.value));
+
+      function renderGudangDropdown(keyword = "") {
+        const dropdown = document.getElementById("gudang_dropdown");
+        const filtered = gudangs.filter((i) =>
+          (i.nama_gudang || "").toLowerCase().includes(keyword.toLowerCase()),
+        );
+        let html = filtered
+          .map(
+            (i) => `
+          <div class="combo-item" onclick="pilihGudang(${i.id}, '${(i.nama_gudang || "").replace(/'/g, "\\'")}')">
+            <span class="material-symbols-outlined text-[18px]">warehouse</span>
+            ${i.nama_gudang}
+          </div>`,
+          )
+          .join("");
+
+        // Tombol "Tambah Gudang Baru" — hanya admin & gudang
+        if (keyword.trim() && (role === "admin" || role === "gudang")) {
+          const exactMatch = gudangs.some(
+            (g) =>
+              (g.nama_gudang || "").toLowerCase() === keyword.toLowerCase(),
+          );
+          if (!exactMatch) {
+            html += `
+              <div class="combo-item add-new"
+                onclick="pilihGudangBaru('${keyword.replace(/'/g, "\\'")}')">
+                <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                Tambah "${keyword}"
+              </div>`;
+          }
+        }
+
+        dropdown.innerHTML =
+          html ||
+          `<div class="px-4 py-3 text-sm text-slate-400">Ketik nama gudang...</div>`;
+        dropdown.classList.add("open");
+      }
+
+      function pilihGudang(id, nama) {
+        selectedGudang = id;
+        document.getElementById("gudang_input").value = nama;
+        document.getElementById("gudang_id").value = id;
+        document.getElementById("gudang_dropdown").classList.remove("open");
+        document.getElementById("gudang_clear").classList.add("show");
+      }
+      function clearGudang() {
+        selectedGudang = null;
+        document.getElementById("gudang_input").value = "";
+        document.getElementById("gudang_id").value = "";
+        document.getElementById("gudang_clear").classList.remove("show");
+      }
+
+      async function pilihGudangBaru(nama) {
+        try {
+          const res = await fetch(GUDANG_URL, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({ nama_gudang: nama }),
+          });
+          const result = await res.json();
+          if (!res.ok) return alert(result.message || "Gagal tambah gudang");
+          await loadMasterData();
+          const baru = gudangs.find(
+            (g) => (g.nama_gudang || "").toLowerCase() === nama.toLowerCase(),
+          );
+          if (baru) pilihGudang(baru.id, baru.nama_gudang);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      // Tutup dropdown ketika klik di luar
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".combo-wrap")) {
+          document
+            .querySelectorAll(".combo-dropdown")
+            .forEach((d) => d.classList.remove("open"));
+        }
+      });
+
+      // ── SUBMIT PO ─────────────────────────────────────────────────
+      async function submitPO() {
+        const supplier_id = document.getElementById("supplier_id").value;
+        const gudang_id = document.getElementById("gudang_id").value;
+        const qty = document.getElementById("qty").value;
+
+        if (!supplier_id) return alert("Supplier wajib diisi");
+        if (!selectedBarangNama) return alert("Barang wajib diisi");
+        if (!gudang_id) return alert("Gudang tujuan wajib diisi");
+        if (!qty || qty < 1) return alert("Qty harus lebih dari 0");
+
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: hdrJson,
+            body: JSON.stringify({
+              supplier_id,
+              barang_id: selectedBarangId,
+              nama_barang: selectedBarangNama,
+              gudang_id,
+              qty,
+            }),
+          });
+          const result = await res.json();
+          alert(result.message);
+          if (res.ok) {
+            closeForm();
+            loadData();
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      // ── STATUS MODAL ──────────────────────────────────────────────
+      function updateStatus(id, currentStatus) {
+        editingId = id;
+
+        // Reset semua radio: enable dulu
+        document.querySelectorAll("input[name='statusRadio']").forEach((r) => {
+          r.disabled = false;
+          r.checked = r.value === currentStatus;
+        });
+
+        // Manager: hanya bisa set "approved"
+        if (role === "manager") {
+          document
+            .querySelectorAll("input[name='statusRadio']")
+            .forEach((r) => {
+              r.disabled = r.value !== "approved";
+            });
+          document.getElementById("statusModalSubtitle").textContent =
+            "Kamu hanya bisa menyetujui PO (approved)";
+        }
+        // Gudang: hanya bisa set "received"
+        else if (role === "gudang") {
+          document
+            .querySelectorAll("input[name='statusRadio']")
+            .forEach((r) => {
+              r.disabled = r.value !== "received";
+            });
+          document.getElementById("statusModalSubtitle").textContent =
+            "Kamu hanya bisa konfirmasi penerimaan (received)";
+        }
+        // Admin: semua bisa
+        else {
+          document.getElementById("statusModalSubtitle").textContent =
+            "Ubah status purchase order";
+        }
+
+        document.getElementById("statusModal").classList.add("open");
+      }
+
+      function closeStatusModal() {
+        document.getElementById("statusModal").classList.remove("open");
+        editingId = null;
+      }
+
+      async function confirmUpdateStatus() {
+        const status = document.querySelector(
+          "input[name='statusRadio']:checked",
+        )?.value;
+        if (!status) return alert("Pilih status terlebih dahulu");
+
+        // Guard: double-check di frontend sebelum kirim ke API
+        if (role === "manager" && status !== "approved")
+          return alert("Manager hanya bisa set status approved");
+        if (role === "gudang" && status !== "received")
+          return alert("Gudang hanya bisa set status received");
+
+        try {
+          const res = await fetch(`${API_URL}/${editingId}`, {
+            method: "PUT",
+            headers: hdrJson,
+            body: JSON.stringify({ status }),
+          });
+          const result = await res.json();
+          alert(result.message);
+          closeStatusModal();
+          loadData();
+        } catch (err) {
+          console.log(err);
+        }
+      }
+
+      // ── LOGOUT ────────────────────────────────────────────────────
+      function openLogout() {
+        document.getElementById("logoutModal").classList.add("open");
+      }
+      function closeLogout() {
+        document.getElementById("logoutModal").classList.remove("open");
+      }
+      function confirmLogout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────
+      window.onload = async () => {
+        await loadMasterData();
+        await loadBarang();
+        initBarangCombobox();
+        loadData();
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Laporan Inventaris - LogistikSmart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background: #f1f5f9;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          "FILL" 0,
+          "wght" 400,
+          "GRAD" 0,
+          "opsz" 24;
+      }
+      ::-webkit-scrollbar {
+        width: 7px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+      .sidebar-text {
+        font-size: 14px;
+      }
+
+      #logoutModal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+      #logoutModal.open {
+        display: flex;
+      }
+      .modal-box {
+        background: white;
+        border-radius: 24px;
+        padding: 32px;
+        width: 340px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- LOGOUT MODAL -->
+    <div id="logoutModal">
+      <div class="modal-box text-center">
+        <div
+          class="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
+          <span class="material-symbols-outlined text-red-500 text-[28px]"
+            >logout</span
+          >
+        </div>
+        <h2 class="font-bold text-slate-800 text-lg mb-1">Yakin logout?</h2>
+        <p class="text-slate-500 text-sm mb-6">Kamu akan keluar dari sistem</p>
+        <div class="flex gap-3">
+          <button
+            onclick="closeLogout()"
+            class="flex-1 h-11 rounded-xl border border-slate-200 text-slate-600 text-sm"
+          >
+            Batal
+          </button>
+          <button
+            onclick="confirmLogout()"
+            class="flex-1 h-11 rounded-xl bg-red-500 text-white text-sm"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex min-h-screen">
+      <!-- SIDEBAR -->
+      <aside
+        class="w-[260px] bg-slate-950 text-white fixed h-screen flex flex-col justify-between"
+      >
+        <div class="overflow-y-auto flex-1">
+          <!-- LOGO -->
+          <div class="px-6 py-6 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-11 h-11 bg-blue-500 rounded-2xl flex items-center justify-center"
+              >
+                <span class="material-symbols-outlined">warehouse</span>
+              </div>
+              <div>
+                <h1 class="font-bold text-lg">LogistikSmart</h1>
+                <p class="text-slate-400 text-xs">Management System</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- MENU -->
+          <div class="p-4">
+            <!-- MENU UTAMA -->
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 px-3 tracking-wider"
+            >
+              Menu Utama
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="dashboard.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >dashboard</span
+                >
+                Dashboard
+              </a>
+              <a
+                href="barang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >inventory_2</span
+                >
+                Barang
+              </a>
+              <a
+                href="supplier.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >local_shipping</span
+                >
+                Supplier
+              </a>
+              <a
+                href="gudang.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >warehouse</span
+                >
+                Gudang
+              </a>
+              <a
+                href="stok.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >stacks</span
+                >
+                Stok Gudang
+              </a>
+            </nav>
+
+            <!-- TRANSAKSI -->
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Transaksi
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="barang-masuk.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >move_to_inbox</span
+                >
+                Barang Masuk
+              </a>
+              <a
+                href="barang-keluar.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >outbox</span
+                >
+                Barang Keluar
+              </a>
+              <a
+                href="mutasi.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >sync_alt</span
+                >
+                Mutasi Gudang
+              </a>
+              <a
+                href="po.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >shopping_cart</span
+                >
+                Purchase Order
+              </a>
+            </nav>
+
+            <!-- ANALITIK -->
+            <p
+              class="text-slate-500 text-[11px] font-semibold uppercase mb-3 mt-7 px-3 tracking-wider"
+            >
+              Analitik
+            </p>
+            <nav class="space-y-1">
+              <a
+                href="riwayat.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-slate-800 text-slate-300 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >history</span
+                >
+                Riwayat
+              </a>
+              <a
+                href="laporan.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-blue-500 sidebar-text"
+              >
+                <span class="material-symbols-outlined text-[20px]"
+                  >assessment</span
+                >
+                Laporan
+              </a>
+            </nav>
+          </div>
+        </div>
+
+        <!-- USER FOOTER -->
+        <div class="p-4 border-t border-slate-800">
+          <div class="bg-slate-900 rounded-2xl p-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-11 h-11 rounded-full"
+              />
+              <div>
+                <h3 id="username" class="font-semibold text-sm">User</h3>
+                <p id="userrole" class="text-slate-400 text-xs uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+            <button
+              onclick="openLogout()"
+              class="w-full mt-4 bg-red-500 hover:bg-red-600 transition h-10 rounded-xl text-sm font-semibold"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="flex-1 ml-[260px]">
+        <!-- TOPBAR -->
+        <div
+          class="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between sticky top-0 z-30"
+        >
+          <div>
+            <h1 class="text-2xl font-bold text-slate-800">
+              Laporan Inventaris & Stok
+            </h1>
+            <p class="text-sm text-slate-500">Dashboard / Laporan Inventaris</p>
+          </div>
+          <div class="flex items-center gap-5">
+            <button
+              class="w-10 h-10 rounded-xl hover:bg-slate-100 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-slate-600"
+                >manage_accounts</span
+              >
+            </button>
+            <div class="h-8 w-[1px] bg-slate-300"></div>
+            <div class="flex items-center gap-3">
+              <img
+                src="https://i.pravatar.cc/100"
+                class="w-10 h-10 rounded-full"
+              />
+              <div>
+                <h3 id="usernameTop" class="font-semibold text-sm">User</h3>
+                <p id="userroleTop" class="text-xs text-slate-500 uppercase">
+                  USER
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="p-6">
+          <!-- CARDS -->
+          <div class="grid grid-cols-4 gap-5 mb-6">
+            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+              <p class="text-sm text-slate-500 mb-2">TOTAL SKU AKTIF</p>
+              <h2 id="totalBarang" class="text-3xl font-bold text-slate-800">
+                0
+              </h2>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+              <p class="text-sm text-slate-500 mb-2">NILAI INVENTARIS</p>
+              <h2 id="nilaiInventaris" class="text-3xl font-bold text-blue-600">
+                Rp 0
+              </h2>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+              <p class="text-sm text-slate-500 mb-2">BARANG KELUAR</p>
+              <h2 id="barangKeluar" class="text-3xl font-bold text-red-500">
+                0
+              </h2>
+            </div>
+            <div class="bg-white rounded-2xl border border-slate-200 p-5">
+              <p class="text-sm text-slate-500 mb-2">BARANG MASUK</p>
+              <h2 id="barangMasuk" class="text-3xl font-bold text-emerald-500">
+                0
+              </h2>
+            </div>
+          </div>
+
+          <!-- CONTENT GRID -->
+          <div class="grid grid-cols-3 gap-6">
+            <!-- STOK KRITIS -->
+            <div
+              class="col-span-2 bg-white rounded-3xl border border-slate-200 overflow-hidden"
+            >
+              <div
+                class="px-6 py-5 border-b border-slate-200 flex items-center justify-between"
+              >
+                <div>
+                  <h3 class="font-bold text-lg text-slate-800">
+                    Laporan Stok Kritis/Minimum
+                  </h3>
+                  <p class="text-sm text-slate-500">
+                    Barang dengan stok minimum
+                  </p>
+                </div>
+                <span
+                  id="stokCount"
+                  class="text-xs text-slate-400 font-semibold"
+                ></span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full">
+                  <thead class="bg-slate-50">
+                    <tr>
+                      <th class="px-6 py-4 text-left text-xs text-slate-500">
+                        SKU & PRODUK
+                      </th>
+                      <th class="px-6 py-4 text-left text-xs text-slate-500">
+                        STOK
+                      </th>
+                      <th class="px-6 py-4 text-left text-xs text-slate-500">
+                        STATUS
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody id="stokTable"></tbody>
+                </table>
+              </div>
+              <!-- PAGINATION -->
+              <div
+                id="stokPagination"
+                class="hidden px-6 py-4 border-t border-slate-100 flex items-center justify-between"
+              >
+                <span id="pageInfo" class="text-xs text-slate-400"></span>
+                <div class="flex gap-2">
+                  <button
+                    id="btnPrev"
+                    onclick="changePage(-1)"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+                  >
+                    <span class="material-symbols-outlined text-[16px]"
+                      >chevron_left</span
+                    >
+                    Prev
+                  </button>
+                  <button
+                    id="btnNext"
+                    onclick="changePage(1)"
+                    class="px-4 py-2 rounded-xl border border-slate-200 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
+                  >
+                    Next
+                    <span class="material-symbols-outlined text-[16px]"
+                      >chevron_right</span
+                    >
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- RINGKASAN -->
+            <div class="space-y-4">
+              <div class="bg-white rounded-3xl border border-slate-200 p-5">
+                <h3 class="font-bold text-lg mb-5">Ringkasan Aktivitas</h3>
+                <div id="aktivitasList" class="space-y-4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
+      const name = localStorage.getItem("name");
+
+      if (!token) {
+        alert("Silakan login!");
+        window.location.href = "login.html";
+      }
+
+      // ROLE ACCESS
+      const allowedRoles = ["admin", "manager", "gudang", "user", "purchasing"];
+      if (!allowedRoles.includes(role)) {
+        alert("Tidak punya akses!");
+        window.location.href = "dashboard.html";
+      }
+
+      // USER INFO
+      document.getElementById("username").innerText = name || "User";
+      document.getElementById("userrole").innerText = role.toUpperCase();
+      document.getElementById("usernameTop").innerText = name || "User";
+      document.getElementById("userroleTop").innerText = role.toUpperCase();
+
+      const headers = { Authorization: `Bearer ${token}` };
+
+      async function loadData() {
+        try {
+          const [barang, masuk, keluar, mutasi] = await Promise.all([
+            fetch("http://localhost:5000/barang", { headers }).then((r) =>
+              r.json(),
+            ),
+            fetch("http://localhost:5000/barang-masuk", { headers }).then((r) =>
+              r.json(),
+            ),
+            fetch("http://localhost:5000/barang-keluar", { headers }).then(
+              (r) => r.json(),
+            ),
+            fetch("http://localhost:5000/mutasi-gudang", { headers }).then(
+              (r) => r.json(),
+            ),
+          ]);
+
+          renderCards(barang, masuk, keluar);
+          renderStokKritis(barang);
+          renderAktivitas(masuk, keluar, mutasi);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      function renderCards(barang, masuk, keluar) {
+        const totalBarang = barang.length;
+        const totalMasuk = masuk.reduce((a, b) => a + Number(b.qty || 0), 0);
+        const totalKeluar = keluar.reduce((a, b) => a + Number(b.qty || 0), 0);
+        const totalNilai = barang.reduce(
+          (a, b) => a + Number(b.harga || 0) * Number(b.stok || 0),
+          0,
+        );
+
+        document.getElementById("totalBarang").innerText = totalBarang;
+        document.getElementById("barangMasuk").innerText = totalMasuk;
+        document.getElementById("barangKeluar").innerText = totalKeluar;
+        document.getElementById("nilaiInventaris").innerText =
+          "Rp " + totalNilai.toLocaleString("id-ID");
+      }
+
+      let stokKritisData = [];
+      let currentPage = 1;
+      const PER_PAGE = 5;
+
+      function renderStokKritis(barang) {
+        stokKritisData = barang.filter((i) => Number(i.stok) <= 20);
+        currentPage = 1;
+        renderStokPage();
+      }
+
+      function renderStokPage() {
+        const tbody = document.getElementById("stokTable");
+        const pagination = document.getElementById("stokPagination");
+        const pageInfo = document.getElementById("pageInfo");
+        const btnPrev = document.getElementById("btnPrev");
+        const btnNext = document.getElementById("btnNext");
+        const stokCount = document.getElementById("stokCount");
+
+        tbody.innerHTML = "";
+
+        if (stokKritisData.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="3" class="px-6 py-8 text-center text-slate-400">Tidak ada stok kritis</td>
+            </tr>
+          `;
+          pagination.classList.add("hidden");
+          stokCount.innerText = "";
+          return;
+        }
+
+        const totalPages = Math.ceil(stokKritisData.length / PER_PAGE);
+        const start = (currentPage - 1) * PER_PAGE;
+        const pageData = stokKritisData.slice(start, start + PER_PAGE);
+
+        stokCount.innerText = `${stokKritisData.length} barang`;
+
+        pageData.forEach((item) => {
+          const stok = Number(item.stok);
+          const statusColor =
+            stok <= 10
+              ? "bg-red-50 text-red-500"
+              : "bg-yellow-50 text-yellow-600";
+          const statusLabel = stok <= 10 ? "KRITIS" : "MINIMUM";
+
+          tbody.innerHTML += `
+            <tr class="border-b border-slate-100">
+              <td class="px-6 py-5">
+                <h3 class="font-bold text-slate-800">${item.nama_barang}</h3>
+                <p class="text-sm text-slate-400">SKU-${item.id}</p>
+              </td>
+              <td class="px-6 py-5">
+                <span class="font-bold text-red-500">${item.stok} Unit</span>
+              </td>
+              <td class="px-6 py-5">
+                <span class="${statusColor} px-3 py-1 rounded-full text-xs font-semibold">${statusLabel}</span>
+              </td>
+            </tr>
+          `;
+        });
+
+        // Tampilkan pagination hanya jika > 5
+        if (stokKritisData.length > PER_PAGE) {
+          pagination.classList.remove("hidden");
+          pagination.style.display = "flex";
+          pageInfo.innerText = `Halaman ${currentPage} dari ${totalPages}`;
+          btnPrev.disabled = currentPage === 1;
+          btnNext.disabled = currentPage === totalPages;
+        } else {
+          pagination.classList.add("hidden");
+        }
+      }
+
+      function changePage(dir) {
+        const totalPages = Math.ceil(stokKritisData.length / PER_PAGE);
+        currentPage = Math.min(Math.max(currentPage + dir, 1), totalPages);
+        renderStokPage();
+      }
+
+      function renderAktivitas(masuk, keluar, mutasi) {
+        document.getElementById("aktivitasList").innerHTML = `
+          <div class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+            <h3 class="font-semibold text-slate-700 mb-1">Barang Masuk</h3>
+            <p class="text-2xl font-bold text-emerald-600">+${masuk.length}</p>
+          </div>
+          <div class="bg-red-50 rounded-2xl p-4 border border-red-100">
+            <h3 class="font-semibold text-slate-700 mb-1">Barang Keluar</h3>
+            <p class="text-2xl font-bold text-red-500">-${keluar.length}</p>
+          </div>
+          <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+            <h3 class="font-semibold text-slate-700 mb-1">Mutasi Gudang</h3>
+            <p class="text-2xl font-bold text-blue-600">${mutasi.length}</p>
+          </div>
+        `;
+      }
+
+      function openLogout() {
+        document.getElementById("logoutModal").classList.add("open");
+      }
+      function closeLogout() {
+        document.getElementById("logoutModal").classList.remove("open");
+      }
+      function confirmLogout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+
+      window.onload = loadData;
+    </script>
+  </body>
+</html>
