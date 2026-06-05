@@ -407,10 +407,10 @@
       async function loadDashboardData() {
         try {
           const [resB, resStok, resG, resSup] = await Promise.all([
-            fetch("http://127.0.0.1:5000/barang", { headers: H }),
-            fetch("http://127.0.0.1:5000/stok-gudang", { headers: H }),
-            fetch("http://127.0.0.1:5000/gudang", { headers: H }),
-            fetch("http://127.0.0.1:5000/supplier", { headers: H }),
+            fetch("/barang", { headers: H }),
+            fetch("/stok-gudang", { headers: H }),
+            fetch("/gudang", { headers: H }),
+            fetch("/supplier", { headers: H }),
           ]);
 
           if (resB.status === 401 || resStok.status === 401) {
@@ -512,7 +512,7 @@
         container.innerHTML = `<p class="text-slate-400 text-sm text-center">Loading...</p>`;
 
         try {
-          const res = await fetch("http://127.0.0.1:5000/riwayat", {
+          const res = await fetch("/riwayat", {
             headers: H,
           });
 
